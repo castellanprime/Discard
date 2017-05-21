@@ -56,11 +56,11 @@ Red, Blue, Green, Yellow
 
 | Shape | Image 
 | ----- | ----- 
-| Cross | ![cross](assets/images/cross.png)             
-| Square | ![square](assets/images/square.png)
-| Triangle | ![triangle](assets/images/triangle.png)
-| Circle | ![circle](assets/images/circle.png)
-| Cup | ![cup](assets/images/cup.png)        
+| Cross | ![cross](../images/cross.png)             
+| Square | ![square](../images/square.png)
+| Triangle | ![triangle](../images/triangle.png)
+| Circle | ![circle](../images/circle.png)
+| Cup | ![cup](../images/cup.png)        
 
 ## Rules
 
