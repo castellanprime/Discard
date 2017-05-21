@@ -1,6 +1,6 @@
 # Discard
 
-Moved [here](assets/doc/)
+Moved [here](assets/doc/rules.md)
 
 Copyright
 ---------
