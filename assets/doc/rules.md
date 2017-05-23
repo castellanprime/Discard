@@ -106,8 +106,8 @@ The order in `[]` is read from _left to right_, that is the first `''` is the ca
 | :---- | :----- |
 | `['?', '1']` | Everybody picks a card and you play again
 | `['?', '2']` | Everybody picks two cards and you play again
-| `['-', '1']` | Discard a card
-| `['-', '2']` | Discard two cards 
+| `['-', '1']` | Discard an extra card
+| `['-', '2']` | Discard two extra cards 
 | `['?', '->']`, `['->', '?']` | Skip everybody and play again
 | `['-', '?']`, `['?', '-']` | Remove a SpecialCard from the first player that has a Special Card.If there are no special cards, the player can discard one extra card.
 | `['-', '->']`, `['->', '-']` | Remove a SpecialCard from the next player in turn. If 	the player does not have a SpecialCard, the player can discard one extra card.
