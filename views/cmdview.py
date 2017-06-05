@@ -7,6 +7,37 @@
 """
 import textwrap
 
+viewerrors = {
+	1:"You can only pick one card at a time!!!",
+	2:"You have no cards that you can use to block!!",
+	3:"The card is not blockable",
+	4:"That card is not a Normal Card",
+	5:"That color is not allowed",
+	6:"That shape is not allowed",
+	7:"Cant not recognize option!!",
+	8:"Card does not match!!",
+	9:"There is no choice like that"
+}
+
+viewprompts = {
+	1:"How many players are playing today?(Numbers):  ", 
+	2:"Enter your player name: ",
+	3:"Who wants to go first?: ",
+	4:"Choose your card(the number): ",
+	5:"Choose your option:",
+	6:"Do you want to block?(y/n): ",
+	7:"Do you want to combine with a card?(y/n): ",
+	8:"What card do you want to combine with this card(the number)?: ",
+	9:"What do you want to choose on colour or shape?(Colour/C/c or Shape/S/s): ",
+	10:"What type of colour do you want(Red, Blue, Yellow, Green)?: ",
+	11:"What type of shape do you want(Cross, Square, Triangle, Circle, Cup)?: ",
+	12:"I am requesting this card: ",
+	13:"Do you have the card requested, that is do you want to play that card(y/n)?: ",
+	14:"Choose your cards(the numbers) [Order: firstCard, second Card]: ",
+	15:"What Normal card do you want to ask for?(Enter 1 for shape, 2 for colour): ",
+	16:"Do you have this colour?(y/n): ",
+}
+
 def menu():
 	""" Menu options"""
 	st="""
@@ -18,15 +49,14 @@ Select the number associated with action.
 	1. about - Display more information about the game
 	2. help - Display instructions
 	3. play - play your turn
-	4. block - block an action('1' or '2')
-	5. pass - pass up your turn
-	6. menu - show menu
-	7. quit - exit
+	4. pass - pass up your turn
+	5. menu - show menu
+	6. quit - exit
 	"""
 	dendented_text = textwrap.dedent(st).strip()
 	print(dendented_text)
 
-def rules():
+def cmd_rules():
 
 	st="""
 These are the rules for Discard(Tm). The numbers in 
@@ -51,3 +81,17 @@ the '' are the characters on the card faces.
 
 	dendented_text = textwrap.dedent(st).strip()
 	print(dendented_text)
+
+
+def errors(num):
+	return viewerrors[num]
+
+def prompts(num):
+	return viewprompts[num]
+
+def display_cards(player_name, cards):
+	if player_name:
+		cards_rep = ','.join(["\n" + str(cards.index(card)) + ":" + repr(card) for card in cards])
+		print(player_name, cards_rep)	
+	else:
+		print("Card to play against: ", cards)
