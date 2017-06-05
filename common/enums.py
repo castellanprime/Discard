@@ -19,16 +19,16 @@ class Shapes(Enum):
 	CUP = 5
 
 class PlayerState(Enum):
-	PLAYING = 1
-	PLAYED = 2
-	PAUSED = 3
+	PLAYING = 1					# Currently playing
+	PLAYED = 2					# Just played before currently playing
+	PAUSED = 3					# Waiting to play
 
 class GameState(Enum):
-	WIN = 1
-	LOSE = 2
+	WIN = 1						# Player won 
+	LOSE = 2					# Player lost
 	INVALIDMOVE = 3
 	NOACTION = 4
-	DRAW = 5 # If the game is timed
+	DRAW = 5 					# If the game is timed
 
 class CardType(Enum):
 	SPECIAL=1
