@@ -66,7 +66,10 @@ class Controller(object):
 		print("Showing cards")
 		for player in self.model.get_players():
 			self.display_cards(player)
-	
+
+	def get_current_player(self):
+		return self.current_player
+
 	def pick_a_card(self, index):
 		return self.model.get_a_card(index)
 
@@ -93,6 +96,9 @@ class Controller(object):
 			if self.model.does_shape_exist(in_choice):
 				return "Shape:", in_choice
 
+	def get_last_player(self):
+		return self.model.get_player_who_last_played()
+
 	def request_a_card_from_player(self, request, player):
 		print(self.views[0].prompt(12))
 		choice = input(self.views[0].prompt(13))
@@ -104,6 +110,7 @@ class Controller(object):
 		cards = self.model.get_player_cards(player)
 		self.views[0].display_cards(player.get_nick_name(), cards)
 
+	# Is this necessary
 	def display_player_cards(self, player):
 		self.views[0].display_cards(player.get_nick_name(), player.get_deck())
 
@@ -112,7 +119,10 @@ class Controller(object):
 		while  card < 0  or card >= len(player.get_deck()):
 			self.views[0].errors(1)
 			card = int(input(self.views[0].prompts(4)))
-		player.select_cards([card])
+		self.r_player_pick_a_card(card)
+
+	def r_player_pick_a_card(self, index, player):
+		player.select_cards([index])
 		return player.get_last_played()
 
 	def get_top_card(self):

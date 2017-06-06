@@ -82,7 +82,10 @@ class Model(object):
 		self._logger.info("Current player :", self.current_player.get_nick_name())
 		self.game_state[self.current_player].player_state = PlayerState.PLAYING
 		self.set_last_played()
-		self.game_state[self.get_player_who_played_just_before(self.last_played)].player_state = PlayerState.PAUSED
+		if len(self.players) > 2:
+			self.game_state[self.get_player_who_played_just_before(self.last_played)].player_state = PlayerState.PAUSED
+		else:
+			self.game_state[self.last_played].player_state = PlayerState.PAUSED
 		return self.current_player
 
 	def set_last_played(self, player=None):
@@ -149,7 +152,6 @@ class Model(object):
 			_player = self.current_player
 		index = self.players.index(_player) - 1 % len(self.players)
 		return self.players[index]
-
 
 	def add_card(self, card):
 		self.discard_deck.append(card)
