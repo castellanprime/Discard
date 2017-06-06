@@ -82,7 +82,9 @@ class DiscardGame(object):
 					self.played_cards = self._controller.player_pick_a_card(self._controller.current_player)
 					self.state = BlockState()
 					self.state = self.state.evaluate(self, self.played_cards)
-			elif isinstance(self.state, QuestionCardState):
+			elif any(isinstance(self.state, QuestionCardState), 
+					isinstance(self.state, DropCardState), 
+					isinstance(self.state, SkipState)):
 				choice = input(self._controller.views[0].prompt(7))
 				if choice == 'y':
 					self._controller.display_cards(self._controller.current_player)
@@ -90,6 +92,8 @@ class DiscardGame(object):
 					self.state = self.state.evaluate(self, self.played_cards)
 				elif choice == 'n':
 					self.state = self.state.evaluate(self, None)
+			elif isinstance(self.state, QuestionCardandSkipState):
+				return			# allows the player to play again
 			else: 
 				self._controller.display_cards(self._controller.current_player)
 				self.played_cards = self._controller.player_pick_a_card(self._controller.current_player)
