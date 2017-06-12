@@ -49,9 +49,7 @@ Select the number associated with action.
 	1. about - Display more information about the game
 	2. help - Display instructions
 	3. play - play your turn
-	4. pass - pass up your turn
-	5. menu - show menu
-	6. quit - exit
+	4. quit - exit
 	"""
 	dendented_text = textwrap.dedent(st).strip()
 	print(dendented_text)
