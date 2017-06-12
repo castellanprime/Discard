@@ -16,7 +16,7 @@ viewerrors = {
 	6:"That shape is not allowed",
 	7:"Cant not recognize option!!",
 	8:"Card does not match!!",
-	9:"There is no choice like that"
+	9:"There is no choice like that",
 }
 
 viewprompts = {
@@ -36,6 +36,7 @@ viewprompts = {
 	14:"Choose your cards(the numbers) [Order: firstCard, second Card]: ",
 	15:"What Normal card do you want to ask for?(Enter 1 for shape, 2 for colour): ",
 	16:"Do you have this colour?(y/n): ",
+	17:"Bye, bye!!Enjoy the rest of your day"
 }
 
 def menu():
@@ -52,7 +53,7 @@ Select the number associated with action.
 	4. quit - exit
 	"""
 	dendented_text = textwrap.dedent(st).strip()
-	print(dendented_text)
+	print(dendented_text, "\n\n")
 
 def cmd_rules():
 
@@ -78,7 +79,7 @@ the '' are the characters on the card faces.
 """
 
 	dendented_text = textwrap.dedent(st).strip()
-	print(dendented_text)
+	print(dendented_text, "\n\n")
 
 
 def errors(num):
