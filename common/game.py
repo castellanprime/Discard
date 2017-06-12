@@ -56,23 +56,23 @@ class DiscardGame(object):
 		(b) Char or colour in the case of a special card
 		"""
 		if self.is_card_a_normalcard(card_one) and self.is_card_a_normalcard(card_two):
-			return any(card_one.shape == card_two.shape,
-						card_one.get_shape_colour() == card_two.get_shape_colour())
+			return any((card_one.shape == card_two.shape,
+						card_one.get_shape_colour() == card_two.get_shape_colour()))
 		elif ((self.is_card_a_specialcard(card_one) and self.is_card_a_normalcard(card_two))
 			or (self.is_card_a_normalcard(card_one) and self.is_card_a_specialcard(card_two))):
 			return card_one.get_shape_colour() == card_two.get_char_colour()
 		elif self.is_card_a_specialcard(card_one) and self.is_card_a_specialcard(card_two):
-			return any(card_one.char == card_two.char,
-						card_one.get_char_colour() == card_two.get_char_colour())
+			return any((card_one.char == card_two.char,
+						card_one.get_char_colour() == card_two.get_char_colour()))
 
 	def play1Round(self):
 		self.state = BeginPlayState()
 		self.playing = self._controller.get_player_state(self._controller.current_player)
 		while self.playing.player_state == PlayerState.PLAYING:
 			self._controller.display_top_card()
-			if ( any(self.is_card_a_pickone(self._controller.get_top_card()), 
-				self.is_card_a_picktwo(self._controller.get_top_card())) and 
-				(self._controller.get_last_playing_state() == "PickCardsState")):
+			if ( any((self.is_card_a_pickone(self._controller.get_top_card()), 
+				self.is_card_a_picktwo(self._controller.get_top_card()))) and 
+				self._controller.get_last_playing_state() == "PickCardsState"):
 				choice = input(self._controller.views[0].prompt(6))
 				if choice == 'n':
 					self.state = PickCardsState()
@@ -82,9 +82,9 @@ class DiscardGame(object):
 					self.played_cards = self._controller.player_pick_a_card(self._controller.current_player)
 					self.state = BlockState()
 					self.state = self.state.evaluate(self, self.played_cards)
-			elif any(isinstance(self.state, QuestionCardState), 
+			elif any((isinstance(self.state, QuestionCardState), 
 					isinstance(self.state, DropCardState), 
-					isinstance(self.state, SkipState)):
+					isinstance(self.state, SkipState))):
 				choice = input(self._controller.views[0].prompt(7))
 				if choice == 'y':
 					self._controller.display_cards(self._controller.current_player)

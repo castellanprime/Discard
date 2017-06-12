@@ -19,8 +19,8 @@ class BeginPlayState(PlayStates):
 				discardGame.playing.player_state = PlayerState.PLAYED
 				discardGame._controller.set_current_player()
 				return None
-			elif any(discardGame.is_card_a_pick_one_card(playedCards), 
-				discardGame_is_card_a_pick_two_card(playedCards)):
+			elif any((discardGame.is_card_a_pick_one_card(playedCards), 
+				discardGame_is_card_a_pick_two_card(playedCards))):
 				return PickCardsState() 
 			elif discardGame.is_card_a_question(playedCards):
 				return QuestionCardState()
@@ -47,12 +47,12 @@ class PickCardsState(PlayStates):
 	def evaluate(self, discardGame, playedCards):
 		if playedCards is None:
 			# Non-blocking
-			if all(discardGame.is_card_a_pick_one_card(playedCards),
-				discardGame.is_a_pick_one_card(discardGame._controller.get_top_card())):
+			if all((discardGame.is_card_a_pick_one_card(playedCards),
+				discardGame.is_a_pick_one_card(discardGame._controller.get_top_card()))):
 				for i in range(discardGame.num_of_pick_cards):
 					discardGame.pick_one()
-			if all(discardGame.is_card_a_pick_two_card(playedCards),
-				discardGame.is_card_a_pick_two(discardGame._controller.get_top_card())):
+			if all((discardGame.is_card_a_pick_two_card(playedCards),
+				discardGame.is_card_a_pick_two(discardGame._controller.get_top_card()))):
 				for i in range(discardGame.num_of_pick_cards):
 					discardGame.pick_two()			
 		else:
@@ -166,13 +166,15 @@ class DropCardState(PlayStates):
 				discardGame._controller.set_current_player()
 				return None
 			elif playedCards: 
-				if any(discardGame.is_a_pickone(playedCards), 
-					discardGame.is_a_picktwo(playedCards)):
+				if any((discardGame.is_a_pickone(playedCards), 
+					discardGame.is_a_picktwo(playedCards))):
 					return DropCardandPickState()
 				elif discardGame.is_a_skip(playedCards):
 					return DropCardandSkipState()
 				elif discardGame.is_a_question(playedCards):
 					return QuestionCardandDropCardState()
+				else:
+					return PunishWrongMatchesState()
 
 class DropCardandPickState(PlayStates):
 	""" Rules for a drop and a pickone/picktwo card """
@@ -227,14 +229,16 @@ class SkipCardState(PlayStates):
 					return QuestionCardandSkipState()
 				elif discardGame.is_a_drop(playedCards):
 					return QuestionCardandDropCardState()
+				else:
+					return PunishWrongMatchesState()
 
 class BlockState(PlayStates):
 	""" Rules for Blocking """
 	def evaluate(self, discardGame, playedCards):
-		if  any(all(discardGame.is_card_a_pick_one_card(playedCards),
-			discardGame.is_a_pick_one_card(discardGame._controller.get_top_card())),
-			all(discardGame.is_card_a_pick_two_card(playedCards),
-			discardGame.is_card_a_pick_two(discardGame._controller.get_top_card()))):
+		if  any((all((discardGame.is_card_a_pick_one_card(playedCards),
+			discardGame.is_a_pick_one_card(discardGame._controller.get_top_card()))),
+			all((discardGame.is_card_a_pick_two_card(playedCards),
+			discardGame.is_card_a_pick_two(discardGame._controller.get_top_card()))))):
 			return PickCardsState()
 		return PunishWrongMatchesState() 
 
