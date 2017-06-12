@@ -63,9 +63,10 @@ class Controller(object):
 			if self.new_game.is_card_a_normalcard(card):
 				self.model.discard_deck.append(self.pick_a_card(index))
 				break
-		print("Showing cards")
+		print("\nShowing cards")
 		for player in self.model.get_players():
 			self.display_cards(player)
+		print("\n")
 
 	def get_current_player(self):
 		return self.current_player
@@ -79,8 +80,8 @@ class Controller(object):
 	def request_a_card(self):
 		choice = input(self.views[0].prompt(9))
 		in_choice = ""
-		while not any(choice.lower() == "colour", choice.lower == "s",
-			choice.lower() == "shape", choice.lower() == "c"):
+		while not any((choice.lower() == "colour", choice.lower == "s",
+			choice.lower() == "shape", choice.lower() == "c")):
 			print(self.views[0].errors(7))
 			choice = input(self.views[0].prompt(9))
 		if choice.lower() == "colour" or choice.lower() == "c":
@@ -114,12 +115,18 @@ class Controller(object):
 	def display_player_cards(self, player):
 		self.views[0].display_cards(player.get_nick_name(), player.get_deck())
 
+	def ask_to_pick(self):
+		choice = input(self.views[0].prompts(18))
+		while choice.lower() != "pick" or choice.lower() != "skip":
+			choice = input(self.views[0].prompts(18))
+		return choice
+
 	def player_pick_a_card(self, player):
 		card = int(input(self.views[0].prompts(4)))
 		while  card < 0  or card >= len(player.get_deck()):
 			self.views[0].errors(1)
 			card = int(input(self.views[0].prompts(4)))
-		self.r_player_pick_a_card(card)
+		self.r_player_pick_a_card(card, player)
 
 	def r_player_pick_a_card(self, index, player):
 		player.select_cards([index])

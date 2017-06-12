@@ -5,7 +5,8 @@
 """
 import logging
 from common.cards import NormalCard, SpecialCard
-from common.playstates import BeginPlayState, PickCardsState, QuestionCardState
+from common.playstates import BeginPlayState, PickCardsState, QuestionCardState, \
+		DropCardState, SkipCardState, QuestionCardandSkipState
 from common.enums import PlayerState
 
 class DiscardGame(object):
@@ -84,7 +85,7 @@ class DiscardGame(object):
 					self.state = self.state.evaluate(self, self.played_cards)
 			elif any((isinstance(self.state, QuestionCardState), 
 					isinstance(self.state, DropCardState), 
-					isinstance(self.state, SkipState))):
+					isinstance(self.state, SkipCardState))):
 				choice = input(self._controller.views[0].prompt(7))
 				if choice == 'y':
 					self._controller.display_cards(self._controller.current_player)
@@ -96,8 +97,17 @@ class DiscardGame(object):
 				return			# allows the player to play again
 			else: 
 				self._controller.display_cards(self._controller.current_player)
-				self.played_cards = self._controller.player_pick_a_card(self._controller.current_player)
-				self.state = self.state.evaluate(self, self.played_cards)
+				pick_choice = self._controller.ask_to_pick()
+				if pick_choice.lower() == "pick":
+					self.played_cards = self._controller.player_pick_a_card(self._controller.current_player)
+					st = "Starting the round: " + self.state.__class__.__name__
+					self._logger.info(st)
+					self.state = self.state.evaluate(self, self.played_cards)
+				else:
+					self._logger("Skipping turn")
+					self.pick_one()
+					self.playing.player_state = PlayerState.PLAYED
+					self._controller.set_current_player()
 
 	def update(self, playedCards):
 		self._controller.play_card(playedCards)
