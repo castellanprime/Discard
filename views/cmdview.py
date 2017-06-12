@@ -36,7 +36,8 @@ viewprompts = {
 	14:"Choose your cards(the numbers) [Order: firstCard, second Card]: ",
 	15:"What Normal card do you want to ask for?(Enter 1 for shape, 2 for colour): ",
 	16:"Do you have this colour?(y/n): ",
-	17:"Bye, bye!!Enjoy the rest of your day"
+	17:"Bye, bye!!Enjoy the rest of your day",
+	18:"Do you want to play a card or skip your turn?(Pick/Skip): "
 }
 
 def menu():
@@ -91,6 +92,6 @@ def prompts(num):
 def display_cards(player_name, cards):
 	if player_name:
 		cards_rep = ','.join(["\n" + str(cards.index(card)) + ":" + repr(card) for card in cards])
-		print(player_name, cards_rep)	
+		print("You:", player_name, " are playing", cards_rep)	
 	else:
 		print("Card to play against: ", cards)
