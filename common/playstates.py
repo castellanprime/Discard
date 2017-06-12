@@ -1,4 +1,5 @@
-from enums import PlayerState
+from common.enums import PlayerState
+
 class PlayStates(object):
 
 	"""Superclass for playing states of Discard"""
@@ -19,7 +20,7 @@ class BeginPlayState(PlayStates):
 				discardGame._controller.set_current_player()
 				return None
 			elif any(discardGame.is_card_a_pick_one_card(playedCards), 
-				discardGame_is_card_a_pick_two_card(playedCards))
+				discardGame_is_card_a_pick_two_card(playedCards)):
 				return PickCardsState() 
 			elif discardGame.is_card_a_question(playedCards):
 				return QuestionCardState()
@@ -71,7 +72,7 @@ class QuestionCardState(PlayStates):
 			discardGame.update_state(self.__class__.__name__)
 			return self
 		else:
-		 	if playedCards is None:		# If it is  not combinable
+			if playedCards is None:		# If it is  not combinable
 				request_type, requested_card = discardGame._controller.request_a_card()
 				player = discardGame._controller.get_next_player()
 				request = request_type + requested_card
@@ -98,7 +99,7 @@ class QuestionCardState(PlayStates):
 				else:
 					return PunishWrongMatchesState()
 
-class QuestionCardandDropCardState(PlayerStates):
+class QuestionCardandDropCardState(PlayStates):
 	""" Rules for combining a question card and a drop card """
 	def evaluate(self, discardGame, playedCards):
 		player = discardGame._controller.get_next_turn()
@@ -118,7 +119,7 @@ class QuestionCardandDropCardState(PlayerStates):
 		discardGame._controller.set_current_player()
 		return None
 
-class QuestionCardandPickState(PlayerStates):
+class QuestionCardandPickState(PlayStates):
 	""" Rules for combining a question card and a pickone/picktwo card """
 	def evaluate(self, discardGame, playedCards):
 		if discardGame.is_a_card_pickone(playedCards):
@@ -142,7 +143,7 @@ class QuestionCardandPickState(PlayerStates):
 		discardGame._controller.set_current_player()
 		return None
 
-class QuestionCardandSkipState(PlayerStates):
+class QuestionCardandSkipState(PlayStates):
 	""" Rules for combining a question card and a skip card """
 	def evaluate(self, discardGame, playedCards):
 		return self
@@ -227,13 +228,13 @@ class SkipCardState(PlayStates):
 				elif discardGame.is_a_drop(playedCards):
 					return QuestionCardandDropCardState()
 
-class BlockState(PlayerStates):
+class BlockState(PlayStates):
 	""" Rules for Blocking """
 	def evaluate(self, discardGame, playedCards):
 		if  any(all(discardGame.is_card_a_pick_one_card(playedCards),
 			discardGame.is_a_pick_one_card(discardGame._controller.get_top_card())),
 			all(discardGame.is_card_a_pick_two_card(playedCards),
-			discardGame.is_card_a_pick_two(discardGame._controller.get_top_card())))
+			discardGame.is_card_a_pick_two(discardGame._controller.get_top_card()))):
 			return PickCardsState()
 		return PunishWrongMatchesState() 
 

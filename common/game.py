@@ -6,7 +6,7 @@
 import logging
 from common.cards import NormalCard, SpecialCard
 from common.playstates import BeginPlayState, PickCardsState, QuestionCardState
-from enums import PlayerState
+from common.enums import PlayerState
 
 class DiscardGame(object):
 
@@ -72,7 +72,7 @@ class DiscardGame(object):
 			self._controller.display_top_card()
 			if ( any(self.is_card_a_pickone(self._controller.get_top_card()), 
 				self.is_card_a_picktwo(self._controller.get_top_card())) and 
-				self._controller.get_last_playing_state() == 'PickCardsState')
+				(self._controller.get_last_playing_state() == "PickCardsState")):
 				choice = input(self._controller.views[0].prompt(6))
 				if choice == 'n':
 					self.state = PickCardsState()

@@ -79,7 +79,8 @@ class Model(object):
 
 	def set_current_player(self, player):
 		self.current_player = self.find_player(player)
-		self._logger.info("Current player :", self.current_player.get_nick_name())
+		cur_play = "Current player: " + self.current_player.get_nick_name()
+		self._logger.info(cur_play)
 		self.game_state[self.current_player].player_state = PlayerState.PLAYING
 		self.set_last_played()
 		if len(self.players) > 2:
