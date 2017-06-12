@@ -2,7 +2,7 @@
 	This module is the controller class for the
 	command-line version of Discard(Tm)
 """
-import logging, random
+import logging, random, sys
 from common.game import DiscardGame
 from common.player import Player
 from models.model import Model
@@ -41,7 +41,7 @@ class Controller(object):
 
 		# Deals the cards to the players
 		self.deal()
-		while self.game.is_there_a_winner == False:
+		while self.new_game.is_there_a_winner == False:
 			self.main()
 
 	def deal(self):
@@ -87,7 +87,7 @@ class Controller(object):
 			in_choice = input(self.views[0].prompt(10))
 			while self.model.does_colour_exist(in_choice) is False:
 				 in_choice = input(self.views[0].prompt(10))
-			if self.model.does_colour_exist(in_choice)
+			if self.model.does_colour_exist(in_choice):
 				return "Colour:", in_choice
 		if choice.lower() == "shape" or choice.lower() == "s":
 			in_choice = input(self.views[0].prompt(11))
@@ -102,7 +102,7 @@ class Controller(object):
 	def request_a_card_from_player(self, request, player):
 		print(self.views[0].prompt(12))
 		choice = input(self.views[0].prompt(13))
-		if choice = 'y':
+		if choice == 'y':
 			return (self.player_pick_a_card(player), 'y')
 		return (None, 'n')
 
@@ -130,7 +130,7 @@ class Controller(object):
 		return self.model.get_top_card()
 
 	def display_top_card(self):
-		self,views[0].display_cards(player=None, self.get_top_card())
+		self.views[0].display_cards(None, self.get_top_card())
 
 	def get_player_state(self, player):
 		return self.model.get_player_state(player)
@@ -165,16 +165,18 @@ class Controller(object):
 		"""
 		self.views[0].menu()
 		choice = 0
-		while choice != 5:
-			choice = int(input(self.views[0].prompt(5)))
+		while choice != 4:
+			self.views[0].menu()
+			choice = int(input(self.views[0].prompts(5)))
 			if choice == 1:
 				self.views[1].pretty_help()
 			elif choice == 2:
 				self.views[0].cmd_rules()
 			elif choice == 3:
 				self.new_game.play1Round()
-			elif choice == 4:
-				self.views[0].menu()
-			elif choice < 1 or choice > 5:
+			elif choice < 1 or choice > 4:
 				self.views[0].viewerrors(9)
+		if choice == 4:
+			sys.exit(1)
+
 
