@@ -5,31 +5,14 @@
 """
 
 def pretty_help():
+	PATH = 'assets/doc/rules.html'
 	
-	PATH='assets/doc/rules.md'
-
-	from grip import serve
-	import subprocess
-
-	if self._internet_on():
-		serve(path=PATH, user_content=True, browser=True)
-	else:
-		chrome_path = subprocess.check_output(['command', '-v', 'google-chrome'])
-		subprocess.call([chrome_path, 'assets/doc/rules.html'])
-
-def _internet_on():
-	import socket
-	from urllib.request import urlopen, Request
-	from urllib.error import URLError
-
-	timeout = 10
-	socket.setdefaulttimeout(timeout)
-
+	import os, webbrowser
 	try:
-		req = Request("https://www.google.com")
-		urlopen(req)
-		return True
-	except URLError as err:
-		print(err.reason)
-		return False
+		from urllib import pathname2url         # Python 2.x
+	except:
+		from urllib.request import pathname2url # Python 3.x
+
+	url = 'file:{}'.format(pathname2url(os.path.abspath(PATH)))
+	webbrowser.open(url)
 
