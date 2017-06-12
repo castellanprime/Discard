@@ -163,7 +163,6 @@ class Controller(object):
 		Start Game
 
 		"""
-		self.views[0].menu()
 		choice = 0
 		while choice != 4:
 			self.views[0].menu()
@@ -177,6 +176,7 @@ class Controller(object):
 			elif choice < 1 or choice > 4:
 				self.views[0].viewerrors(9)
 		if choice == 4:
-			sys.exit(1)
+			print(self.views[0].prompts(17))
+			sys.exit(0)
 
 
