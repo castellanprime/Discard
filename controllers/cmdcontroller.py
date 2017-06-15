@@ -39,6 +39,7 @@ class Controller(object):
 		else:
 			print("You are keeping the default play")
 
+		print("Player order: ", str(self.model.get_players()))
 		# Deals the cards to the players
 		self.deal()
 		while self.new_game.is_there_a_winner == False:
@@ -75,7 +76,7 @@ class Controller(object):
 		return self.model.get_a_card(index)
 
 	def deal_to_player(self, player):
-		player.add_a_card(self.pick_a_card()) 
+		player.add_a_card(self.pick_a_card(None)) 
 
 	def request_a_card(self):
 		choice = input(self.views[0].prompt(9))
@@ -116,10 +117,13 @@ class Controller(object):
 		self.views[0].display_cards(player.get_nick_name(), player.get_deck())
 
 	def ask_to_pick(self):
-		choice = input(self.views[0].prompts(18))
-		while choice.lower() != "pick" or choice.lower() != "skip":
+		while True:
 			choice = input(self.views[0].prompts(18))
-		return choice
+			if choice.lower() == "pick" or choice.lower() == "skip":
+				st = "You selected: " + choice
+				self._logger.info(st)
+				return choice.lower()
+			print(self.views[0].errors(10))				
 
 	def player_pick_a_card(self, player):
 		card = int(input(self.views[0].prompts(4)))
