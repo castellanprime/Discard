@@ -67,6 +67,8 @@ class DiscardGame(object):
 						card_one.get_char_colour() == card_two.get_char_colour()))
 
 	def play1Round(self):
+		cl = "You: " + self._controller.current_player + " is currently playing"
+		self._logger.info(cl)
 		self.state = BeginPlayState()
 		self.playing = self._controller.get_player_state(self._controller.current_player)
 		while self.playing.player_state == PlayerState.PLAYING:
@@ -104,7 +106,7 @@ class DiscardGame(object):
 					self._logger.info(st)
 					self.state = self.state.evaluate(self, self.played_cards)
 				else:
-					self._logger("Skipping turn")
+					self._logger.info("Skipping turn")
 					self.pick_one()
 					self.playing.player_state = PlayerState.PLAYED
 					self._controller.set_current_player()

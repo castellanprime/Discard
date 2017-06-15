@@ -5,7 +5,7 @@
  	TODOs:
  		So far, none
 """
-import textwrap
+import textwrap, logging
 
 viewerrors = {
 	1:"You can only pick one card at a time!!!",
@@ -17,6 +17,7 @@ viewerrors = {
 	7:"Cant not recognize option!!",
 	8:"Card does not match!!",
 	9:"There is no choice like that",
+	10:"You either choose either ('Pick') or ('Skip')!!"
 }
 
 viewprompts = {
@@ -90,8 +91,11 @@ def prompts(num):
 	return viewprompts[num]
 
 def display_cards(player_name, cards):
+	logger = logging.getLogger(__name__)
 	if player_name:
 		cards_rep = ','.join(["\n" + str(cards.index(card)) + ":" + repr(card) for card in cards])
-		print("You:", player_name, " are playing", cards_rep)	
+		logger.debug(cards_rep)
+		print(cards_rep)	
 	else:
+		logger.debug(cards)
 		print("Card to play against: ", cards)
