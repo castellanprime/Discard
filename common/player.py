@@ -43,6 +43,9 @@ class Player(object):
 		#self.game.set_current_player(self.game.get_next_turn())
 		pass
 
+	def __str__(self):
+		return "Player: {}".format(self.nick)
+
 
 
 
