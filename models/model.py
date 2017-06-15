@@ -69,6 +69,8 @@ class Model(object):
 		return self.last_played
 
 	def get_player_who_played_just_before(self, player):
+		st = "Setting the play status of " + str(player) + " Playing"
+		self._logger.info(st)
 		return self.get_last_turn(player)
 
 	def find_player(self, player):
@@ -91,6 +93,8 @@ class Model(object):
 
 	def set_last_played(self, player=None):
 		self.last_played = self.get_last_turn(player)
+		st = "Last played :" + self.last_played.get_nick_name()
+		self._logger.info(st)
 
 	def get_game_deck(self):
 		return self.main_deck
@@ -136,12 +140,17 @@ class Model(object):
 			_player = player
 		else:
 			_player = self.current_player
-		index = self.players.index(_player) + 1 % len(self.players)
+		self._logger.info(str(_player))
+		index = (self.players.index(_player) + 1) % len(self.players)
+		st = "Current index : " + str(index)
+		self._logger.info(st)
 		while True:
 			next_player = self.players[index]
-			if self.game_state[next_player] == PlayerState.PAUSED:
+			if self.game_state[next_player].player_state == PlayerState.PAUSED:
+				st = "Selected next player: " + next_player.get_nick_name()
+				self._logger.info(st)
 				return next_player
-			index = index + 1 % len(self.players) 
+			index = (index + 1) % len(self.players) 
 
 	def get_last_turn(self, player=None):
 		"""	Get the last person that played."""

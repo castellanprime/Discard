@@ -14,7 +14,7 @@ fh.setLevel(logging.DEBUG)
 ch = logging.StreamHandler()
 ch.setLevel(logging.DEBUG)
 
-formatter = logging.Formatter(' - %(name)s - %(levelname)-8s: %(message)s')
+formatter = logging.Formatter('- %(name)s - %(levelname)-8s: %(message)s')
 
 fh.setFormatter(formatter)
 ch.setFormatter(formatter)
