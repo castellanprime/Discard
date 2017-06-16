@@ -14,10 +14,10 @@ class NormalCard(Card):
 		self.shape = shape
 
 	def get_card_colour(self):
-		return super().card_colour
+		return self.card_colour
 
 	def get_shape_colour(self):
-		return super().other_colour
+		return self.other_colour
 
 	def __repr__(self):
 		return "(Shape:{0} Colours:{1})".format(self.shape, super().__repr__())
@@ -30,10 +30,10 @@ class SpecialCard(Card):
 		self.char = char
 
 	def get_card_colour(self):
-		return super().card_colour
+		return self.card_colour
 
 	def get_char_colour(self):
-		return super().other_colour
+		return self.other_colour
 
 	def __repr__(self):
 		return "(Char:{0} Colours:{1})".format(self.char, super().__repr__())
