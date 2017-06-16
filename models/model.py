@@ -170,6 +170,8 @@ class Model(object):
 		self.state_history.append(state)
 
 	def get_last_state(self):
+		if len(self.state_history) == 0:
+			return None
 		return self.state_history[-1]
 
 	def does_shape_exist(self, shape):

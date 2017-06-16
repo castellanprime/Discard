@@ -95,7 +95,7 @@ def display_cards(player_name, cards):
 	if player_name:
 		cards_rep = ','.join(["\n" + str(cards.index(card)) + ":" + repr(card) for card in cards])
 		logger.debug(cards_rep)
-		print(cards_rep)	
+		print(player_name, " Your cards:" , cards_rep)	
 	else:
 		logger.debug(cards)
 		print("Card to play against: ", cards)

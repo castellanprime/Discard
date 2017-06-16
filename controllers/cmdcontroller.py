@@ -130,7 +130,7 @@ class Controller(object):
 		while  card < 0  or card >= len(player.get_deck()):
 			self.views[0].errors(1)
 			card = int(input(self.views[0].prompts(4)))
-		self.r_player_pick_a_card(card, player)
+		return self.r_player_pick_a_card(card, player)
 
 	def r_player_pick_a_card(self, index, player):
 		player.select_cards([index])
@@ -154,8 +154,8 @@ class Controller(object):
 
 	def punish_for_wrong_match(self, player):
 		print(self.views[0].prompts(8))
-		player.pick_one(self.pick_a_card())
-		player.pick_one(self.pick_a_card())
+		player.pick_one(self.pick_a_card(None))
+		player.pick_one(self.pick_a_card(None))
 
 	def get_next_turn(self, player=None):
 		return self.model.get_next_turn(player)
