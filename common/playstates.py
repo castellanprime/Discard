@@ -8,17 +8,14 @@ class PlayStates(object):
 	def __str__(self):
 		return self.__doc__
 
-
 class BeginPlayState(PlayStates):
 	"""Initial beginning state"""
 	def evaluate(self, discardGame, playedCards):
-		if discardGame.do_cards_match(playedCards, discardGame._controller.get_top_card()):
-			if discardGame.is_card_a_normal_card(playedCards):
-				discardGame.update(playedCards)
-				discardGame.update_state(self.__class__.__name__)
-				discardGame.playing.player_state = PlayerState.PLAYED
-				discardGame._controller.set_current_player()
-				return None
+		top_card = discardGame._controller.get_top_card()
+		print(str(top_card))
+		if discardGame.do_cards_match(playedCards, top_card):
+			if discardGame.is_card_a_normalcard(playedCards):
+				return NormalCardState()
 			elif any((discardGame.is_card_a_pick_one_card(playedCards), 
 				discardGame_is_card_a_pick_two_card(playedCards))):
 				return PickCardsState() 
@@ -32,9 +29,20 @@ class BeginPlayState(PlayStates):
 			return PunishWrongMatchesState()
 
 
+class NormalCardState(PlayStates):
+	"""Rules for normal cards"""
+	def evaluate(self, discardGame, playedCards):
+		print("Beginning NormalCardState")
+		discardGame.update(playedCards)
+		discardGame.update_state(self.__class__.__name__)
+		discardGame.playing.player_state = PlayerState.PLAYED
+		discardGame._controller.set_current_player()
+		return None
+
 class PunishWrongMatchesState(PlayStates):
 	""" Punishment for wrong card matches """
 	def evaluate(self, discardGame, playedCards):
+		print("Beginning PunishWrongMatchesState")
 		discardGame.update(playedCards)
 		discardGame.update_state(self.__class__.__name__)
 		discardGame._controller.punish_for_wrong_match(discardGame._controller.current_player)
@@ -45,6 +53,7 @@ class PunishWrongMatchesState(PlayStates):
 class PickCardsState(PlayStates):
 	""" Pick One or Pick Two Rules """
 	def evaluate(self, discardGame, playedCards):
+		print("Beginning PickCardsState")
 		if playedCards is None:
 			# Non-blocking
 			if all((discardGame.is_card_a_pick_one_card(playedCards),
@@ -67,6 +76,7 @@ class PickCardsState(PlayStates):
 class QuestionCardState(PlayStates):
 	""" Question Card Rules """
 	def evaluate(self, discardGame, playedCards):
+		print("Beginning QuestionCardState")
 		if discardGame.is_card_a_question_card(discardGame._controller.get_top_card()) is False:
 			discardGame.update(playedCards)
 			discardGame.update_state(self.__class__.__name__)
@@ -102,6 +112,7 @@ class QuestionCardState(PlayStates):
 class QuestionCardandDropCardState(PlayStates):
 	""" Rules for combining a question card and a drop card """
 	def evaluate(self, discardGame, playedCards):
+		print("Beginning QuestionCardandDropCardState")
 		player = discardGame._controller.get_next_turn()
 		while player != discardGame._controller.get_current_player():
 			cards = player.get_deck()
@@ -122,6 +133,7 @@ class QuestionCardandDropCardState(PlayStates):
 class QuestionCardandPickState(PlayStates):
 	""" Rules for combining a question card and a pickone/picktwo card """
 	def evaluate(self, discardGame, playedCards):
+		print("Beginning QuestionCardandPickState")
 		if discardGame.is_a_card_pickone(playedCards):
 			player = discardGame._controller.get_next_turn()
 			while player != discardGame._controller.get_last_player():
@@ -146,6 +158,7 @@ class QuestionCardandPickState(PlayStates):
 class QuestionCardandSkipState(PlayStates):
 	""" Rules for combining a question card and a skip card """
 	def evaluate(self, discardGame, playedCards):
+		print("Beginning QuestionCardandSkipState")
 		return self
 
 
@@ -153,6 +166,7 @@ class DropCardState(PlayStates):
 	""" Drop Card Rules """
 	# Rewrite to allow for multiple drop cards
 	def evaluate(self, discardGame, playedCards):
+		print("Beginning DropCardState")
 		if discardGame.is_card_a_drop_card(discardGame._controller.get_top_card()) is False:
 			discardGame.update(playedCards)
 			discardGame.update_state(self.__class__.__name__)
@@ -179,6 +193,7 @@ class DropCardState(PlayStates):
 class DropCardandPickState(PlayStates):
 	""" Rules for a drop and a pickone/picktwo card """
 	def evaluate(self, discardGame, playedCards):
+		print("Beginning DropCardandPickState")
 		if discardGame.is_a_card_a_pickone(playedCards):
 			card = discardGame._controller.player_pick_a_card(discardGame._controller.get_current_player())
 			discardGame.update(card)
@@ -195,6 +210,7 @@ class DropCardandPickState(PlayStates):
 class DropCardandSkipState(PlayStates):
 	""" Rules for a drop and a skip card """
 	def evaluate(self, discardGame, playedCards):
+		print("Beginning DropCardandSkipState")
 		player = discardGame._controller.get_next_turn()
 		cards = player.get_deck()
 		for index, card in enumerate(cards):
@@ -214,6 +230,7 @@ class DropCardandSkipState(PlayStates):
 class SkipCardState(PlayStates):
 	""" Skip Card Rules """
 	def evaluate(self, discardGame, playedCards):
+		print("Beginning SkipCardState")
 		if discardGame.is_card_a_skip_card(discardGame._controller.get_top_card()) is False:
 			discardGame.update(playedCards)
 			discardGame.update_state(self.__class__.__name__)
@@ -235,15 +252,11 @@ class SkipCardState(PlayStates):
 class BlockState(PlayStates):
 	""" Rules for Blocking """
 	def evaluate(self, discardGame, playedCards):
+		print("Beginning BlockState")
 		if  any((all((discardGame.is_card_a_pick_one_card(playedCards),
 			discardGame.is_a_pick_one_card(discardGame._controller.get_top_card()))),
 			all((discardGame.is_card_a_pick_two_card(playedCards),
 			discardGame.is_card_a_pick_two(discardGame._controller.get_top_card()))))):
 			return PickCardsState()
 		return PunishWrongMatchesState() 
-
-		
-
-
-
 

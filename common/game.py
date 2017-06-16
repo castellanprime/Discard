@@ -6,7 +6,7 @@
 import logging
 from common.cards import NormalCard, SpecialCard
 from common.playstates import BeginPlayState, PickCardsState, QuestionCardState, \
-		DropCardState, SkipCardState, QuestionCardandSkipState
+		DropCardState, SkipCardState, QuestionCardandSkipState, NormalCardState, PunishWrongMatchesState
 from common.enums import PlayerState
 
 class DiscardGame(object):
@@ -15,14 +15,10 @@ class DiscardGame(object):
 		self._controller = controller
 		self._logger = logging.getLogger(__name__)
 		self.state, self.playing = None, None
-		self.played_cards = []
+		self.played_cards = None
 		self.num_of_pick_cards = 0
 		self.is_there_a_winner = False			# If there is a winner
-		#self.current_player, self._first_play = None, None
-		#self.asked_card_colour, self.asked_card_shape = "", "" 
-		#self.asked_for_cards = False
-		#self.drop_cards = [False, 0]		# Number of cards to drop
-
+		
 	""" Checks """
 	def is_card_a_normalcard(self, card):
 		return isinstance(card, NormalCard)
@@ -56,6 +52,7 @@ class DiscardGame(object):
 		(a)	Shape or Colour in the case of a normal card
 		(b) Char or colour in the case of a special card
 		"""
+		print("Card_one: ", str(card_one), " Card_two: ", str(card_two))
 		if self.is_card_a_normalcard(card_one) and self.is_card_a_normalcard(card_two):
 			return any((card_one.shape == card_two.shape,
 						card_one.get_shape_colour() == card_two.get_shape_colour()))
@@ -67,7 +64,7 @@ class DiscardGame(object):
 						card_one.get_char_colour() == card_two.get_char_colour()))
 
 	def play1Round(self):
-		cl = "You: " + self._controller.current_player + " is currently playing"
+		cl = "You: " + str(self._controller.current_player) + " is currently playing"
 		self._logger.info(cl)
 		self.state = BeginPlayState()
 		self.playing = self._controller.get_player_state(self._controller.current_player)
@@ -80,31 +77,41 @@ class DiscardGame(object):
 				if choice == 'n':
 					self.state = PickCardsState()
 					self.state = self.state.evaluate(self, None)
+					self._logger.info(str(self.state))
 				else:
 					self._controller.display_cards(self._controller.current_player)
-					self.played_cards = self._controller.player_pick_a_card(self._controller.current_player)
+					self.played_cards = self._controller.player_pick_a_card(self._controller.current_player)[0]
 					self.state = BlockState()
 					self.state = self.state.evaluate(self, self.played_cards)
+					self._logger.info(str(self.state))
 			elif any((isinstance(self.state, QuestionCardState), 
 					isinstance(self.state, DropCardState), 
 					isinstance(self.state, SkipCardState))):
 				choice = input(self._controller.views[0].prompt(7))
 				if choice == 'y':
 					self._controller.display_cards(self._controller.current_player)
-					self.played_cards = self._controller.player_pick_a_card(self._controller.current_player)
+					self.played_cards = self._controller.player_pick_a_card(self._controller.current_player)[0]
 					self.state = self.state.evaluate(self, self.played_cards)
+					self._logger.info(str(self.state))
 				elif choice == 'n':
 					self.state = self.state.evaluate(self, None)
+					self._logger.info(str(self.state))
 			elif isinstance(self.state, QuestionCardandSkipState):
 				return			# allows the player to play again
+			elif any((isinstance(self.state, NormalCardState), 
+					isinstance(self.state, PunishWrongMatchesState))):
+				self.state = self.state.evaluate(self, self.played_cards)
+				self._logger.info(str(self.state))
 			else: 
 				self._controller.display_cards(self._controller.current_player)
 				pick_choice = self._controller.ask_to_pick()
 				if pick_choice.lower() == "pick":
-					self.played_cards = self._controller.player_pick_a_card(self._controller.current_player)
+					self.played_cards = self._controller.player_pick_a_card(self._controller.current_player)[0]
+					self._logger.info(str(self.played_cards))
 					st = "Starting the round: " + self.state.__class__.__name__
 					self._logger.info(st)
 					self.state = self.state.evaluate(self, self.played_cards)
+					self._logger.info(str(self.state))
 				else:
 					self._logger.info("Skipping turn")
 					self.pick_one()
