@@ -6,7 +6,7 @@ import sys, os, logging
 ## Logging is needed
 
 logger = logging.getLogger('')
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 
 fh = logging.FileHandler('run.log', 'w', 'utf-8')
 fh.setLevel(logging.DEBUG)
