@@ -15,6 +15,7 @@ class Controller(object):
 		self.model = Model()
 		self.new_game = DiscardGame(self)
 		self.current_player = None
+		self.winner = None
 		self.state = None
 
 	def start_game(self):
@@ -39,11 +40,19 @@ class Controller(object):
 		else:
 			print("You are keeping the default play")
 
-		print("Player order: ", str(self.model.get_players()))
+		print("Player order: ", ",".join([str(player) for player in self.model.get_players()]))
+		
 		# Deals the cards to the players
 		self.deal()
+
+		# While no one has won
 		while self.new_game.is_there_a_winner == False:
 			self.main()
+		
+		# Somebody has won
+		ssstr = str(self.winner) + " has won"
+		self.display_message(ssstr)
+		sys.exit(0)
 
 	def deal(self):
 		num_of_players = len(self.model.get_players())
@@ -79,34 +88,37 @@ class Controller(object):
 		player.add_a_card(self.pick_a_card(None)) 
 
 	def request_a_card(self):
-		choice = input(self.views[0].prompt(9))
+		choice = input(self.views[0].prompts(9))
 		in_choice = ""
-		while not any((choice.lower() == "colour", choice.lower == "s",
+		while not any((choice.lower() == "colour", choice.lower() == "s",
 			choice.lower() == "shape", choice.lower() == "c")):
 			print(self.views[0].errors(7))
-			choice = input(self.views[0].prompt(9))
+			choice = input(self.views[0].prompts(9))
 		if choice.lower() == "colour" or choice.lower() == "c":
-			in_choice = input(self.views[0].prompt(10))
+			in_choice = input(self.views[0].prompts(10))
 			while self.model.does_colour_exist(in_choice) is False:
-				 in_choice = input(self.views[0].prompt(10))
-			if self.model.does_colour_exist(in_choice):
-				return "Colour:", in_choice
+				 in_choice = input(self.views[0].prompts(10))
+			return "Colour:", in_choice
 		if choice.lower() == "shape" or choice.lower() == "s":
-			in_choice = input(self.views[0].prompt(11))
+			in_choice = input(self.views[0].prompts(11))
 			while self.model.does_shape_exist(in_choice) is False:
-				in_choice = input(self.views[0].prompt(10))
-			if self.model.does_shape_exist(in_choice):
-				return "Shape:", in_choice
+				in_choice = input(self.views[0].prompts(10))
+			return "Shape:", in_choice
 
 	def get_last_player(self):
 		return self.model.get_player_who_last_played()
 
 	def request_a_card_from_player(self, request, player):
-		print(self.views[0].prompt(12))
-		choice = input(self.views[0].prompt(13))
+		print(str(player))
+		self._logger.debug(str(player))
+		print(self.views[0].prompts(12), request)
+		choice = input(self.views[0].prompts(13))
 		if choice == 'y':
-			return (self.player_pick_a_card(player), 'y')
+			return (self.player_pick_a_card(player)[0], 'y')
 		return (None, 'n')
+
+	def set_win_status(self, player):
+		self.winner = self.model.set_win_status(player)
 
 	def display_cards(self, player):
 		cards = self.model.get_player_cards(player)
@@ -134,6 +146,8 @@ class Controller(object):
 
 	def r_player_pick_a_card(self, index, player):
 		player.select_cards([index])
+		st = "You picked:" + str(player.get_last_played())
+		self._logger.info(st)
 		return player.get_last_played()
 
 	def get_top_card(self):
@@ -153,7 +167,8 @@ class Controller(object):
 		return self.model.get_last_state()
 
 	def punish_for_wrong_match(self, player):
-		print(self.views[0].prompts(8))
+		print(self.views[0].errors(8))
+		print(self.views[0].prompts(19))
 		player.pick_one(self.pick_a_card(None))
 		player.pick_one(self.pick_a_card(None))
 
@@ -169,6 +184,21 @@ class Controller(object):
 	def update_state(self, state):
 		self.model.add_state(state)
 
+	def display_message(self, sstr):
+		self.views[0].display_message(sstr)
+
+	def get_colour(self, col):
+		return self.model.get_colour(col)[0]
+
+	def get_shape(self, shap):
+		return self.model.get_shape(shap)[0]
+
+	def get_random_colour(self):
+		return random.choice(self.model.colours)
+
+	def get_random_shape(self):
+		return random.choice(self.model.shapes)
+
 	def main(self):
 		"""
 		Start Game
@@ -177,6 +207,8 @@ class Controller(object):
 		choice = 0
 		while choice != 4:
 			self.views[0].menu()
+			sstrs = "Currently playing " + str(self.current_player)
+			self.display_message(sstrs) 
 			choice = int(input(self.views[0].prompts(5)))
 			if choice == 1:
 				self.views[1].pretty_help()
