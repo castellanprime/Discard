@@ -24,8 +24,7 @@ class NormalCard(Card):
 
 class SpecialCard(Card):
 
-	def __init__(self, card_colour, char_colour, char, 
-				is_blockable=False, is_stackable=False):
+	def __init__(self, card_colour, char_colour, char):
 		super().__init__(card_colour, char_colour)
 		self.char = char
 
