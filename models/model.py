@@ -9,7 +9,7 @@
 import logging
 from collections import deque
 from common.cards import NormalCard, SpecialCard
-from common.enums import ShapeColour, CardColour, Shapes, PlayerState
+from common.enums import ShapeColour, CardColour, Shapes, PlayerState, GameState
 from common.playerstate import State
 
 
@@ -38,15 +38,15 @@ class Model(object):
 	def _create_special_card_deck(self):
 		special_card_deck = []
 		for colour in self.colours:
-			pick_one_card = SpecialCard(colour, CardColour.WHITE,'1')
+			pick_one_card = SpecialCard(CardColour.WHITE, colour, '1')
 			special_card_deck.append(pick_one_card)
-			pick_two_card = SpecialCard(colour, CardColour.WHITE,'2')
+			pick_two_card = SpecialCard(CardColour.WHITE, colour, '2')
 			special_card_deck.append(pick_two_card)
-			question_card = SpecialCard(colour, CardColour.WHITE, '?')
+			question_card = SpecialCard(CardColour.WHITE, colour, '?')
 			special_card_deck.append(question_card)
-			right_arrow_card = SpecialCard(colour, CardColour.WHITE, '->')
+			right_arrow_card = SpecialCard(CardColour.WHITE, colour, '->')
 			special_card_deck.append(right_arrow_card)
-			minus_card = SpecialCard(colour, CardColour.WHITE, '-')
+			minus_card = SpecialCard(CardColour.WHITE, colour, '-')
 			special_card_deck.append(minus_card)
 		return special_card_deck
 
@@ -82,13 +82,15 @@ class Model(object):
 	def set_current_player(self, player):
 		self.current_player = self.find_player(player)
 		cur_play = "Current player: " + self.current_player.get_nick_name()
-		self._logger.info(cur_play)
+		self._logger.debug(cur_play)
 		self.game_state[self.current_player].player_state = PlayerState.PLAYING
 		self.set_last_played()
 		if len(self.players) > 2:
 			self.game_state[self.get_player_who_played_just_before(self.last_played)].player_state = PlayerState.PAUSED
 		else:
 			self.game_state[self.last_played].player_state = PlayerState.PAUSED
+			if self.get_last_state() == "SkipCardState":		# if the player just played a skip card
+				self.game_state[self.last_played].player_state = PlayerState.PLAYING
 		return self.current_player
 
 	def set_last_played(self, player=None):
@@ -134,16 +136,16 @@ class Model(object):
 
 	def get_next_turn(self, player=None):
 		"""	Get the next person to play."""
-		self._logger.info("Getting next player to play")
+		self._logger.debug("Getting next player to play")
 		_player = None
 		if player:
 			_player = player
 		else:
 			_player = self.current_player
-		self._logger.info(str(_player))
+		self._logger.debug(str(_player))
 		index = (self.players.index(_player) + 1) % len(self.players)
 		st = "Current index : " + str(index)
-		self._logger.info(st)
+		self._logger.debug(st)
 		while True:
 			next_player = self.players[index]
 			if self.game_state[next_player].player_state == PlayerState.PAUSED:
@@ -154,7 +156,7 @@ class Model(object):
 
 	def get_last_turn(self, player=None):
 		"""	Get the last person that played."""
-		self._logger.info("Getting player who played before this player")
+		self._logger.debug("Getting player who played before this player")
 		_player = None
 		if player:
 			_player = player
@@ -179,6 +181,21 @@ class Model(object):
 
 	def does_colour_exist(self, colour):
 		return colour.lower() in [val.name.lower() for val in self.colours]
+
+	def set_win_status(self, player):
+		self.game_state[player].set_win_status(GameState.WIN)
+		losers = [self.players[index] for index in range(len(self.players)) if index != self.players.index(player)]
+		for play in losers:
+			self.game_state[play].set_win_status(GameState.LOSE)
+		return player	
+	
+	def get_colour(self, col):
+		colour_names = [val.name.lower() for val in self.colours]
+		return [colour for name, colour in zip(colour_names, self.colours) if col.lower() == name]
+
+	def get_shape(self, shap):
+		shapes_names = [val.name.lower() for val in self.shapes]
+		return [shape for name, shape in zip(shapes_names, self.shapes) if shap.lower() == name]	
 
 	def save(self):
 		pass
