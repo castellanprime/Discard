@@ -52,71 +52,95 @@ class DiscardGame(object):
 		(a)	Shape or Colour in the case of a normal card
 		(b) Char or colour in the case of a special card
 		"""
-		print("Card_one: ", str(card_one), " Card_two: ", str(card_two))
+		sstr = "Card_one: " + str(card_one) +  "\nCard_two: " + str(card_two) 
+		self._logger.debug(sstr)
 		if self.is_card_a_normalcard(card_one) and self.is_card_a_normalcard(card_two):
 			return any((card_one.shape == card_two.shape,
 						card_one.get_shape_colour() == card_two.get_shape_colour()))
-		elif ((self.is_card_a_specialcard(card_one) and self.is_card_a_normalcard(card_two))
-			or (self.is_card_a_normalcard(card_one) and self.is_card_a_specialcard(card_two))):
+		elif self.is_card_a_specialcard(card_one) and self.is_card_a_normalcard(card_two):
+			return card_one.get_char_colour() == card_two.get_shape_colour()
+		elif self.is_card_a_normalcard(card_one) and self.is_card_a_specialcard(card_two):
 			return card_one.get_shape_colour() == card_two.get_char_colour()
 		elif self.is_card_a_specialcard(card_one) and self.is_card_a_specialcard(card_two):
 			return any((card_one.char == card_two.char,
 						card_one.get_char_colour() == card_two.get_char_colour()))
 
 	def play1Round(self):
-		cl = "You: " + str(self._controller.current_player) + " is currently playing"
-		self._logger.info(cl)
 		self.state = BeginPlayState()
 		self.playing = self._controller.get_player_state(self._controller.current_player)
 		while self.playing.player_state == PlayerState.PLAYING:
 			self._controller.display_top_card()
-			if ( any((self.is_card_a_pickone(self._controller.get_top_card()), 
-				self.is_card_a_picktwo(self._controller.get_top_card()))) and 
+			if ((self.is_card_a_pickone(self._controller.get_top_card()) or 
+				self.is_card_a_picktwo(self._controller.get_top_card())) and 
 				self._controller.get_last_playing_state() == "PickCardsState"):
-				choice = input(self._controller.views[0].prompt(6))
+					# For current player that has not played a pick one or pick two card
+				choice = input(self._controller.views[0].prompts(6))	# Do he/she want to block
 				if choice == 'n':
+					self._logger.debug(str(self.state))
 					self.state = PickCardsState()
 					self.state = self.state.evaluate(self, None)
-					self._logger.info(str(self.state))
+					self._logger.debug(str(self.state))
 				else:
+					self._logger.debug(str(self.state))
 					self._controller.display_cards(self._controller.current_player)
-					self.played_cards = self._controller.player_pick_a_card(self._controller.current_player)[0]
+					self.played_cards = self._controller.player_pick_a_card(self._controller.current_player)[0]	# Pick the blocking card
 					self.state = BlockState()
 					self.state = self.state.evaluate(self, self.played_cards)
-					self._logger.info(str(self.state))
+					self._logger.debug(str(self.state))
+			elif ((self.is_card_a_pickone(self._controller.get_top_card()) or  
+				self.is_card_a_picktwo(self._controller.get_top_card())) and 
+				self._controller.get_last_playing_state() != "PickCardsState"):
+					# For current player that has just played a pick one or pick two card
+					self._logger.debug(str(self.state))
+					self.state = self.state.evaluate(self, self.played_cards)
+					self._logger.debug(str(self.state))
 			elif any((isinstance(self.state, QuestionCardState), 
 					isinstance(self.state, DropCardState), 
 					isinstance(self.state, SkipCardState))):
-				choice = input(self._controller.views[0].prompt(7))
+				choice = input(self._controller.views[0].prompts(7))
+				self.update(self.played_cards)
 				if choice == 'y':
+					self._logger.debug(str(self.state))
 					self._controller.display_cards(self._controller.current_player)
 					self.played_cards = self._controller.player_pick_a_card(self._controller.current_player)[0]
 					self.state = self.state.evaluate(self, self.played_cards)
-					self._logger.info(str(self.state))
+					self._logger.debug(str(self.state))
 				elif choice == 'n':
+					self._logger.debug(str(self.state))
 					self.state = self.state.evaluate(self, None)
-					self._logger.info(str(self.state))
+					self._logger.debug(str(self.state))
 			elif isinstance(self.state, QuestionCardandSkipState):
 				return			# allows the player to play again
 			elif any((isinstance(self.state, NormalCardState), 
-					isinstance(self.state, PunishWrongMatchesState))):
-				self.state = self.state.evaluate(self, self.played_cards)
-				self._logger.info(str(self.state))
+				isinstance(self.state, PunishWrongMatchesState))):
+					self._logger.debug(str(self.state))
+					self.state = self.state.evaluate(self, self.played_cards)
+					self._logger.debug(str(self.state))
 			else: 
+				# Normal play
 				self._controller.display_cards(self._controller.current_player)
 				pick_choice = self._controller.ask_to_pick()
 				if pick_choice.lower() == "pick":
 					self.played_cards = self._controller.player_pick_a_card(self._controller.current_player)[0]
-					self._logger.info(str(self.played_cards))
+					sstr = "You picked: " + str(self.played_cards)
+					self._controller.display_message(sstr)
+					self._logger.debug(sstr)
 					st = "Starting the round: " + self.state.__class__.__name__
 					self._logger.info(st)
 					self.state = self.state.evaluate(self, self.played_cards)
-					self._logger.info(str(self.state))
+					self._logger.debug(str(self.state))
 				else:
+					# If the player wants to skip his/her turn
 					self._logger.info("Skipping turn")
 					self.pick_one()
 					self.playing.player_state = PlayerState.PLAYED
 					self._controller.set_current_player()
+
+			# Determine who won and end game
+			if self._controller.get_last_player().has_played_last_card == True:
+				self._controller.set_win_status(self._controller.get_last_player())
+				self.is_there_a_winner = True
+				return
 
 	def update(self, playedCards):
 		self._controller.play_card(playedCards)
@@ -130,13 +154,3 @@ class DiscardGame(object):
 	def pick_two(self):
 		self.pick_one()
 		self.pick_one()
-
-	def win(self):
-		pass
-
-	def lose(self):
-		pass
-
-	
-
-
