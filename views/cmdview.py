@@ -29,7 +29,7 @@ viewprompts = {
 	6:"Do you want to block?(y/n): ",
 	7:"Do you want to combine with a card?(y/n): ",
 	8:"What card do you want to combine with this card(the number)?: ",
-	9:"What do you want to choose on colour or shape?(Colour/C/c or Shape/S/s): ",
+	9:"What do you want to choose on, colour or shape?(Colour/C/c or Shape/S/s): ",
 	10:"What type of colour do you want(Red, Blue, Yellow, Green)?: ",
 	11:"What type of shape do you want(Cross, Square, Triangle, Circle, Cup)?: ",
 	12:"I am requesting this card: ",
@@ -38,7 +38,8 @@ viewprompts = {
 	15:"What Normal card do you want to ask for?(Enter 1 for shape, 2 for colour): ",
 	16:"Do you have this colour?(y/n): ",
 	17:"Bye, bye!!Enjoy the rest of your day",
-	18:"Do you want to play a card or skip your turn?(Pick/Skip): "
+	18:"Do you want to play a card or skip your turn?(Pick/Skip): ",
+	19:"Game is dealing two cards to player"
 }
 
 def menu():
@@ -99,3 +100,6 @@ def display_cards(player_name, cards):
 	else:
 		logger.debug(cards)
 		print("Card to play against: ", cards)
+
+def display_message(st):
+	print(st)
