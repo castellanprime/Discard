@@ -31,9 +31,7 @@ class PlayerState(MyEnum):
 class GameState(MyEnum):
 	WIN = 1						# Player won 
 	LOSE = 2					# Player lost
-	INVALIDMOVE = 3
-	NOACTION = 4
-	DRAW = 5 					# If the game is timed
+	DRAW = 3 					# If the game is timed
 
 class CardType(MyEnum):
 	SPECIAL=1
