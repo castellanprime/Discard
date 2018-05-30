@@ -69,7 +69,7 @@ class Model(object):
 		return self.last_played
 
 	def get_player_who_played_just_before(self, player):
-		st = "Setting the play status of " + str(player) + " Playing"
+		st = "Setting the play status of " + str(player) + " Played"
 		self._logger.info(st)
 		return self.get_last_turn(player)
 
@@ -88,7 +88,12 @@ class Model(object):
 		self.game_state[self.current_player].player_state = PlayerState.PLAYING
 		self.set_last_played()
 		if len(self.players) > 2:
-			self.game_state[self.get_player_who_played_just_before(self.last_played)].player_state = PlayerState.PAUSED
+			player_to_pause = self.get_player_who_played_just_before(self.last_played)
+			st = player_to_pause.get_nick_name() + " state was " + str(self.game_state[player_to_pause].player_state)
+			self._logger.info(st) 
+			self.game_state[player_to_pause].player_state = PlayerState.PAUSED
+			st = player_to_pause.get_nick_name() + " state is " + str(self.game_state[player_to_pause].player_state)
+			self._logger.info(st)
 		else:
 			self.game_state[self.last_played].player_state = PlayerState.PAUSED
 			if self.get_last_state() == "SkipCardState":		# if the player just played a skip card

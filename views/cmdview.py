@@ -23,7 +23,7 @@ viewerrors = {
 }
 
 viewprompts = {
-	1:"How many players are playing today?(Numbers):  ", 
+	1:"How many players are playing today?(2-8):  ", 
 	2:"Enter your player name: ",
 	3:"Who wants to go first?: ",
 	4:"Choose your card(the number): ",

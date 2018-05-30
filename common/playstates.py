@@ -133,7 +133,7 @@ class QuestionCardState(PlayStates):
 				while card_choice[0] is None:
 					discardGame._controller.deal_to_player(player)
 					player = discardGame._controller.get_next_player(player)
-					if player == discardGame.current_player:
+					if player == discardGame._controller.current_player:
 						break
 					card_choice = discardGame._controller.request_a_card_from_player(request, player)
 				card_to_compare = None
@@ -161,9 +161,11 @@ class QuestionCardState(PlayStates):
 					return QuestionCardandDropCardState()
 				elif discardGame.is_card_a_skip(playedCards):
 					return QuestionCardandSkipState()
-				elif any(discardGame.is_card_a_picktwo(playedCards),
-					discardGame.is_card_a_pickone(playedCards)):
+				elif any((discardGame.is_card_a_picktwo(playedCards),
+					discardGame.is_card_a_pickone(playedCards))):
 					return QuestionCardandPickState()
+				elif discardGame.is_card_a_question(playedCards):	# cases where you play more than one question card
+					return self
 				else:
 					return PunishWrongMatchesState()
 
@@ -232,9 +234,12 @@ class DropCardState(PlayStates):
 			return self
 		else:
 			if playedCards is None:			# you did not combine
+				st = "Number of cards to discard: " + str(discardGame.num_of_cards_to_discard)
+				discardGame._logger.info(st)
 				for i in range(discardGame.num_of_cards_to_discard):
 					# multiple discards
 					discardGame._controller.display_message("Choose card to drop")
+					discardGame._controller.display_cards(discardGame._controller.current_player)
 					card = discardGame._controller.player_pick_a_card(discardGame._controller.get_current_player())
 					discardGame.update(card)
 					discardGame.update_state(self.__class__.__name__)
@@ -365,7 +370,13 @@ class LastCardState(PlayStates):
 	def evaluate(self, discardGame, playedCards):
 		discardGame._logger.info("Beginning LastCardState")
 		state_to_evaluate = None
-		if any(( discardGame.is_card_a_drop(playedCards), discardGame.is_card_a_question(playedCards) )):
+		if all(( discardGame.is_card_a_specialcard(playedCards), 
+			len(discardGame._controller.current_player.get_deck()) == 0 )):
+			state_to_evaluate = PunishWrongMatchesState()
+		elif any(( discardGame.is_card_a_pickone(playedCards), 
+			discardGame.is_card_a_picktwo(playedCards) )):
+			state_to_evaluate = PunishWrongMatchesState()
+		elif any(( discardGame.is_card_a_drop(playedCards), discardGame.is_card_a_question(playedCards) )):
 			if discardGame.is_card_a_drop(playedCards):
 				state_to_evaluate = DropCardState()
 			elif discardGame.is_card_a_question(playedCards):
@@ -375,5 +386,4 @@ class LastCardState(PlayStates):
 			discardGame._controller.current_player.set_last_card()
 		state_to_evaluate = state_to_evaluate.evaluate(discardGame, playedCards)
 		return state_to_evaluate
-
 

@@ -73,14 +73,14 @@ class DiscardGame(object):
 		sstr = "Card_one: " + str(card_one) +  "\nCard_two: " + str(card_two) 
 		self._logger.debug(sstr)
 		if self.is_card_a_normalcard(card_one) and self.is_card_a_normalcard(card_two):
-			return any((card_one.shape == card_two.shape,
+			return any((card_one.get_shape() == card_two.get_shape(),
 						card_one.get_shape_colour() == card_two.get_shape_colour()))
 		elif self.is_card_a_specialcard(card_one) and self.is_card_a_normalcard(card_two):
 			return card_one.get_char_colour() == card_two.get_shape_colour()
 		elif self.is_card_a_normalcard(card_one) and self.is_card_a_specialcard(card_two):
 			return card_one.get_shape_colour() == card_two.get_char_colour()
 		elif self.is_card_a_specialcard(card_one) and self.is_card_a_specialcard(card_two):
-			return any((card_one.char == card_two.char,
+			return any((card_one.get_char() == card_two.get_char(),
 						card_one.get_char_colour() == card_two.get_char_colour()))
 
 	def normal_play(self):

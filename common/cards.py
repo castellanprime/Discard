@@ -15,6 +15,9 @@ class NormalCard(Card):
 		super().__init__(card_colour, shape_colour)
 		self.shape = shape
 
+	def get_shape(self):
+		return self.shape
+
 	def get_card_colour(self):
 		return self.card_colour
 
@@ -32,6 +35,9 @@ class SpecialCard(Card):
 	def __init__(self, card_colour, char_colour, char):
 		super().__init__(card_colour, char_colour)
 		self.char = char
+
+	def get_char(self):
+		return self.char
 
 	def get_card_colour(self):
 		return self.card_colour
