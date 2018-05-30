@@ -17,7 +17,9 @@ viewerrors = {
 	7:"Cant not recognize option!!",
 	8:"Card does not match!!",
 	9:"There is no choice like that",
-	10:"You either choose either ('Pick') or ('Skip')!!"
+	10:"You either choose either ('Pick') or ('Skip')!!",
+	11:"You entered an empty string as choice",
+	12:"You entered a string for integer"
 }
 
 viewprompts = {
@@ -39,7 +41,10 @@ viewprompts = {
 	16:"Do you have this colour?(y/n): ",
 	17:"Bye, bye!!Enjoy the rest of your day",
 	18:"Do you want to play a card or skip your turn?(Pick/Skip): ",
-	19:"Game is dealing two cards to player"
+	19:"Game is dealing two cards to player",
+	20:"Do you want to add more pick cards(y/n)?: ",
+	21:"To play last card, you must have only one card remaining or you have two cards[with the first one to dropped being the drop/question card]",
+	22:"Do you want to play a card or skip your turn?(Pick/Skip/LastCard): ",
 }
 
 def menu():
@@ -95,7 +100,7 @@ def display_cards(player_name, cards):
 	logger = logging.getLogger(__name__)
 	if player_name:
 		cards_rep = ','.join(["\n" + str(cards.index(card)) + ":" + repr(card) for card in cards])
-		logger.debug(cards_rep)
+		#logger.debug(cards_rep)
 		print(player_name, " Your cards:" , cards_rep)	
 	else:
 		logger.debug(cards)

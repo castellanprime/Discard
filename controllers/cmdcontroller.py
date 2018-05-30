@@ -45,6 +45,10 @@ class Controller(object):
 		# Deals the cards to the players
 		self.deal()
 
+		#If top card is a special card
+		while self.new_game.is_card_a_specialcard(self.get_top_card()):
+			self.deal(False)
+
 		# While no one has won
 		while self.new_game.is_there_a_winner == False:
 			self.main()
@@ -54,7 +58,7 @@ class Controller(object):
 		self.display_message(ssstr)
 		sys.exit(0)
 
-	def deal(self):
+	def deal(self, deal_to_players=True):
 		num_of_players = len(self.model.get_players())
 		num_cards_to_deal = 0
 		if num_of_players == 2:
@@ -73,13 +77,20 @@ class Controller(object):
 			if self.new_game.is_card_a_normalcard(card):
 				self.model.discard_deck.append(self.pick_a_card(index))
 				break
-		print("\nShowing cards")
-		for player in self.model.get_players():
-			self.display_cards(player)
-		print("\n")
+		if deal_to_players:
+			print("\nShowing cards")
+			for player in self.model.get_players():
+				self.display_cards(player)
+			print("\n")
 
 	def get_current_player(self):
 		return self.current_player
+
+	def get_num_of_players(self):
+		return len(self.model.get_players())
+
+	def force_player_to_play(self, player):
+		self.model.force_player_to_play(player)
 
 	def pick_a_card(self, index):
 		return self.model.get_a_card(index)
@@ -108,6 +119,9 @@ class Controller(object):
 	def get_last_player(self):
 		return self.model.get_player_who_last_played()
 
+	def get_next_player(self, player):
+		return self.model.get_next_player(player)
+
 	def request_a_card_from_player(self, request, player):
 		print(str(player))
 		self._logger.debug(str(player))
@@ -128,14 +142,22 @@ class Controller(object):
 	def display_player_cards(self, player):
 		self.views[0].display_cards(player.get_nick_name(), player.get_deck())
 
-	def ask_to_pick(self):
+	def ask_to_pick(self, lastcard=False):
 		while True:
-			choice = input(self.views[0].prompts(18))
-			if choice.lower() == "pick" or choice.lower() == "skip":
-				st = "You selected: " + choice
-				self._logger.info(st)
-				return choice.lower()
-			print(self.views[0].errors(10))				
+			if lastcard:
+				choice = input(self.views[0].prompts(22))
+				if any(( choice.lower() == "pick",choice.lower() == "skip", 
+					choice.lower() == "lastcard")):
+					st = "You selected: " + choice
+					self._logger.info(st)
+					return choice.lower()
+			else:
+				choice = input(self.views[0].prompts(22))
+				if any(( choice.lower() == "pick",choice.lower() == "skip")):
+					st = "You selected: " + choice
+					self._logger.info(st)
+					return choice.lower()
+			print(self.views[0].errors(10))	
 
 	def player_pick_a_card(self, player):
 		card = int(input(self.views[0].prompts(4)))
@@ -154,6 +176,10 @@ class Controller(object):
 		""" Get the last played card on the discard_pile"""
 		return self.model.get_top_card()
 
+	def check_if_last_card(self):
+		""" Set last card """
+		return all((len(self.current_player.get_deck()) <= 2, self.current_player.has_played_last_card() == False))
+
 	def display_top_card(self):
 		self.views[0].display_cards(None, self.get_top_card())
 
@@ -167,8 +193,8 @@ class Controller(object):
 		return self.model.get_last_state()
 
 	def punish_for_wrong_match(self, player):
-		print(self.views[0].errors(8))
-		print(self.views[0].prompts(19))
+		self.display_message(self.views[0].errors(8))
+		self.display_message(self.views[0].prompts(19))
 		player.pick_one(self.pick_a_card(None))
 		player.pick_one(self.pick_a_card(None))
 
@@ -186,6 +212,9 @@ class Controller(object):
 
 	def display_message(self, sstr):
 		self.views[0].display_message(sstr)
+
+	def display_last_card_rules(self):
+		self.display_message(self.views[0].prompts(21))
 
 	def get_colour(self, col):
 		return self.model.get_colour(col)[0]
@@ -208,16 +237,28 @@ class Controller(object):
 		while choice != 4:
 			self.views[0].menu()
 			sstrs = "Currently playing " + str(self.current_player)
-			self.display_message(sstrs) 
-			choice = int(input(self.views[0].prompts(5)))
-			if choice == 1:
-				self.views[1].pretty_help()
-			elif choice == 2:
-				self.views[0].cmd_rules()
-			elif choice == 3:
-				self.new_game.play1Round()
-			elif choice < 1 or choice > 4:
-				self.views[0].viewerrors(9)
+			self.display_message(sstrs)
+			str_choice = input(self.views[0].prompts(5))
+			while any((str_choice is None, not str_choice.strip())): 	# string is None or string is empty
+				self.display_message(self.views[0].errors(11))
+				str_choice = input(self.views[0].prompts(5))
+			try:
+				choice = int(str_choice)
+			except ValueError as e:
+				self.display_message(self.views[0].errors(12))
+			else:
+				if choice == 1:
+					self.views[1].pretty_help()
+				elif choice == 2:
+					self.views[0].cmd_rules()
+				elif choice == 3:
+					self.new_game.play1Round()
+					if self.new_game.has_someone_won() == True:
+						st = self.get_last_player().get_nick_name() + " has won!!"
+						self.display_message(st)
+						sys.exit(0)
+				elif choice < 1 or choice > 4:
+					self.display_message(self.views[0].errors(9))
 		if choice == 4:
 			print(self.views[0].prompts(17))
 			sys.exit(0)

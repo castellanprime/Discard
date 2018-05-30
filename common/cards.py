@@ -1,3 +1,5 @@
+from .enums import SpecialCardName
+
 class Card:
 
 	def __init__(self, card_colour, other_colour):
@@ -19,6 +21,9 @@ class NormalCard(Card):
 	def get_shape_colour(self):
 		return self.other_colour
 
+	def get_name(self):
+		return 'Shape'
+
 	def __repr__(self):
 		return "(Shape:{0} Colours:{1})".format(self.shape, super().__repr__())
 
@@ -33,6 +38,9 @@ class SpecialCard(Card):
 
 	def get_char_colour(self):
 		return self.other_colour
+
+	def get_name(self):
+		return SpecialCardName(self.char).name
 
 	def __repr__(self):
 		return "(Char:{0} Colours:{1})".format(self.char, super().__repr__())

@@ -37,4 +37,11 @@ class CardType(MyEnum):
 	SPECIAL=1
 	NORMAL=2
 
+class SpecialCardName(MyEnum):
+	PICKONE='1'
+	PICKTWO='2'
+	SKIP='->'
+	QUESTION='?'
+	DROP='-'
+
 

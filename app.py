@@ -2,7 +2,7 @@
 	This module represents the 
 	entry point to Discard(tm)
 """
-import sys, os, logging
+import sys, os, logging, argparse
 ## Logging is needed
 
 logger = logging.getLogger('')
@@ -22,6 +22,8 @@ ch.setFormatter(formatter)
 logger.addHandler(fh)
 logger.addHandler(ch)
 
+#parser = argparse.ArgumentParser()
+#parser.add_argument('-v', '--verbose', help="print all debug maessages", action="store_true")
 
 import controllers.cmdcontroller as CmdController
 import views.cmdview as CmdView
@@ -31,6 +33,11 @@ import sys
 def main():
 	try:
 		controller = CmdController.Controller([CmdView, ViewUtil])
+		#args = parser.parse_args()
+		#if args.verbose:
+		#	controller.start_game()
+		#else:
+		#	controller.start_game()
 		controller.start_game()
 	except (SystemExit, KeyboardInterrupt):
 		logger.info("Closing app..")

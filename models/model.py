@@ -6,7 +6,7 @@
 	(c) what is left in the discard pile
 """
 
-import logging
+import logging,random
 from collections import deque
 from common.cards import NormalCard, SpecialCard
 from common.enums import ShapeColour, CardColour, Shapes, PlayerState, GameState
@@ -104,7 +104,7 @@ class Model(object):
 	def init_player_states(self):
 		for player in self.players:
 			self.game_state[player] = State(PlayerState.PAUSED, [])
-			self._logger.info("Added player")
+			self._logger.info("Setting STATE(PAUSED) to player")
 
 	def get_players(self):
 		return self.players
@@ -123,6 +123,7 @@ class Model(object):
 		if index:
 			return self.main_deck.pop(index)
 		else:
+			# If None give the player a card
 			return self.main_deck.pop()
 
 	def get_player_state(self, player):
@@ -133,6 +134,24 @@ class Model(object):
 
 	def get_top_card(self):
 		return self.discard_deck[-1]
+
+	def force_player_to_play(self, player):
+		next_player = (self.players.index(player) + 1) % len(self.players)
+		self.game_state[self.players[next_player]].player_state = PlayerState.PAUSED
+
+	def check_if_all_players_are_paused(self, player):
+		if len(self.players) == 2:
+			all_set_played = True
+			for r_player in self.players:
+				if self.game_state[r_player].player_state == PlayerState.PAUSED:
+					all_set_played = False
+					break
+			if all_set_played:
+				self.force_player_to_play(player)
+
+	def get_next_player(self, player):
+		index = (self.players.index(player) + 1) % len(self.players)
+		return self.players[index]
 
 	def get_next_turn(self, player=None):
 		"""	Get the next person to play."""
@@ -146,7 +165,9 @@ class Model(object):
 		index = (self.players.index(_player) + 1) % len(self.players)
 		st = "Current index : " + str(index)
 		self._logger.debug(st)
+		# This results in an infintie loop if skip card and pick card are combined
 		while True:
+			self.check_if_all_players_are_paused(_player)
 			next_player = self.players[index]
 			if self.game_state[next_player].player_state == PlayerState.PAUSED:
 				st = "Selected next player: " + next_player.get_nick_name()
