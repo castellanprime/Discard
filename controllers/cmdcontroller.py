@@ -31,6 +31,9 @@ class Controller(object):
 		self.model.init_player_states()
 		first_play = input(self.views[0].prompts(3))
 		self.current_player = self.model.set_current_player(first_play)
+		while self.current_player is None:
+			first_play = input(self.views[0].prompts(3))
+			self.current_player = self.model.set_current_player(first_play)
 		print(first_play, " plays first")	
 		choice = input("Do you want to change the direction of play?(y/n): ")
 		if choice == 'y':

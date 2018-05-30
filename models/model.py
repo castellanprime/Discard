@@ -81,6 +81,8 @@ class Model(object):
 
 	def set_current_player(self, player):
 		self.current_player = self.find_player(player)
+		if self.current_player is None:
+			return None
 		cur_play = "Current player: " + self.current_player.get_nick_name()
 		self._logger.debug(cur_play)
 		self.game_state[self.current_player].player_state = PlayerState.PLAYING
