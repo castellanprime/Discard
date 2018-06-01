@@ -96,8 +96,8 @@ class PickCardsState(PlayStates):
 					choice = input(discardGame._controller.views[0].prompts(20))
 				strs = "Number of cards the new player has to pick=" + str(discardGame.num_of_pick_cards)
 				discardGame._logger.info(strs)
-			elif discardGame.do_cards_match(playedCards, top_card):
-				discardGame.update_state(self.__class__.__name__)
+			elif discardGame.do_cards_match(playedCards, top_card) == True:
+				#discardGame.update_state(self.__class__.__name__)
 				state_to_evaluate = None
 				if discardGame.is_card_a_drop(playedCards):
 					state_to_evaluate = DropCardandPickState()
@@ -107,9 +107,10 @@ class PickCardsState(PlayStates):
 					return PunishWrongMatchesState()
 				state_to_evaluate = state_to_evaluate.evaluate(discardGame, top_card)
 				return state_to_evaluate
-		#if (discardGame._controller.get_last_playing_state() == "SkipCardState" and 
-		#	discardGame._controller.get_num_of_players() == 2):
-		#	discardGame._controller.force_player_to_play()
+			elif discardGame.do_cards_match(playedCards, top_card) == False:
+				state_to_evaluate = PunishWrongMatchesState()
+				state_to_evaluate = state_to_evaluate.evaluate(discardGame, top_card)
+				return state_to_evaluate
 		discardGame.update_state(self.__class__.__name__)
 		discardGame.playing.player_state = PlayerState.PLAYED
 		discardGame._controller.set_current_player()
@@ -133,6 +134,7 @@ class QuestionCardState(PlayStates):
 				while card_choice[0] is None:
 					discardGame._controller.deal_to_player(player)
 					player = discardGame._controller.get_next_player(player)
+					discardGame._controller.display_cards(player)
 					if player == discardGame._controller.current_player:
 						break
 					card_choice = discardGame._controller.request_a_card_from_player(request, player)
@@ -332,6 +334,9 @@ class SkipCardState(PlayStates):
 				discardGame.update_state(self.__class__.__name__)
 				player = discardGame._controller.get_next_turn()
 				discardGame._controller.set_player_state(player, PlayerState.PLAYED)
+				if discardGame._controller.get_num_of_players() > 2:
+					player = discardGame._controller.get_next_turn(player)
+					discardGame._controller.set_player_state(player, PlayerState.PAUSED)
 				discardGame.playing.player_state = PlayerState.PAUSED		# This in a three or more player game will kill the loop
 				discardGame._controller.set_current_player()
 				#return QuestionCardandSkipState()							# this will allow the player to decide if he or she wants to play again
@@ -342,7 +347,7 @@ class SkipCardState(PlayStates):
 					state_to_evaluate = QuestionCardandSkipState()
 				elif discardGame.is_card_a_drop(playedCards):
 					state_to_evaluate = DropCardandSkipState()
-				elif any(discardGame.is_card_a_pickone(playedCards), discardGame.is_card_a_picktwo(playedCards)):
+				elif any((discardGame.is_card_a_pickone(playedCards), discardGame.is_card_a_picktwo(playedCards))):
 					state_to_evaluate = PickCardsState()
 				else:
 					return PunishWrongMatchesState()

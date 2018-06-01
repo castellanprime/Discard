@@ -130,6 +130,7 @@ class Controller(object):
 		self._logger.debug(str(player))
 		print(self.views[0].prompts(12), request)
 		choice = input(self.views[0].prompts(13))
+		#Does not account for entering a number
 		if choice == 'y':
 			return (self.player_pick_a_card(player)[0], 'y')
 		return (None, 'n')
