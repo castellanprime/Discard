@@ -49,7 +49,8 @@ class PunishWrongMatchesState(PlayStates):
 	""" Punishment for wrong card matches """
 	def evaluate(self, discardGame, playedCards):
 		discardGame._logger.info("Beginning PunishWrongMatchesState")
-		discardGame.update(playedCards)
+		if playedCards:
+			discardGame.update(playedCards)
 		discardGame.update_state(self.__class__.__name__)
 		discardGame._controller.punish_for_wrong_match(discardGame._controller.current_player)
 		discardGame.playing.player_state = PlayerState.PLAYED
@@ -150,13 +151,20 @@ class QuestionCardState(PlayStates):
 					else:	
 						discardGame.update(card_choice[0])
 						discardGame._controller.set_player_state(player, PlayerState.PLAYED)
-					#discardGame.playing.player_state = PlayerState.PLAYED
+					discardGame.playing.player_state = PlayerState.PLAYED
 					discardGame.update_state(self.__class__.__name__)
-					#discardGame._controller.set_current_player()
-					if discardGame.is_card_a_question(card_choice) is True:
+					discardGame._controller.set_current_player()
+					if discardGame.is_card_a_question(card_choice[0]) is True:
 						return self
 					return None
 				else:
+					if discardGame.is_card_a_drop(playedCards):
+						return QuestionCardandDropCardState()
+					elif discardGame.is_card_a_skip(playedCards):
+						return QuestionCardandSkipState()
+					elif any((discardGame.is_card_a_picktwo(playedCards),
+						discardGame.is_card_a_pickone(playedCards))):
+						return QuestionCardandPickState()
 					return PunishWrongMatchesState()
 			elif playedCards:
 				if discardGame.is_card_a_drop(playedCards):
@@ -187,6 +195,8 @@ class QuestionCardandDropCardState(PlayStates):
 					return None
 			player = discardGame._controller.get_next_turn(player)
 		discardGame.update(discardGame._controller.player_pick_a_card(player))
+		if card is None:	# to punish a player that does not call last card when he is supposed to
+			return PunishWrongMatchesState()
 		discardGame.update_state(self.__class__.__name__)
 		discardGame.playing.player_state = PlayerState.PLAYED
 		discardGame._controller.set_current_player()
@@ -243,6 +253,8 @@ class DropCardState(PlayStates):
 					discardGame._controller.display_message("Choose card to drop")
 					discardGame._controller.display_cards(discardGame._controller.current_player)
 					card = discardGame._controller.player_pick_a_card(discardGame._controller.get_current_player())
+					if card is None:	# to punish a player that does not call last card when he is supposed to
+						return PunishWrongMatchesState()
 					discardGame.update(card)
 					discardGame.update_state(self.__class__.__name__)
 				discardGame.playing.player_state = PlayerState.PLAYED
@@ -273,11 +285,17 @@ class DropCardandPickState(PlayStates):
 		discardGame._logger.info("Beginning DropCardandPickState")
 		if discardGame.is_card_a_pickone(playedCards):
 			card = discardGame._controller.player_pick_a_card(discardGame._controller.get_current_player())
+			if card is None:	# to punish a player that does not call last card when he is supposed to
+				return PunishWrongMatchesState()
 			discardGame.update(card)
 		elif discardGame.is_card_a_picktwo(playedCards):
 			card = discardGame._controller.player_pick_a_card(discardGame._controller.get_current_player())
+			if card is None:	# to punish a player that does not call last card when he is supposed to
+				return PunishWrongMatchesState()
 			discardGame.update(card)
 			card = discardGame._controller.player_pick_a_card(discardGame._controller.get_current_player())
+			if card is None:	# to punish a player that does not call last card when he is supposed to
+				return PunishWrongMatchesState()
 			discardGame.update(card)
 		discardGame.update_state(self.__class__.__name__)
 		discardGame.playing.player_state = PlayerState.PLAYED
@@ -300,6 +318,8 @@ class DropCardandSkipState(PlayStates):
 		discardGame._controller.display_message("Dropping extra card from current player pile")
 		discardGame._controller.display_cards(discardGame._controller.current_player)
 		card = discardGame._controller.player_pick_a_card(discardGame._controller.get_current_player())
+		if card is None:	# to punish a player that does not call last card when he is supposed to
+			return PunishWrongMatchesState()
 		if discardGame.is_card_a_normalcard(card):
 			discardGame.update(card)
 			discardGame.update_state(self.__class__.__name__)

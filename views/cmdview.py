@@ -45,6 +45,7 @@ viewprompts = {
 	20:"Do you want to add more pick cards(y/n)?: ",
 	21:"To play last card, you must have only one card remaining or you have two cards[with the first one to dropped being the drop/question card]",
 	22:"Do you want to play a card or skip your turn?(Pick/Skip/LastCard): ",
+	23:"Do you want to call last card(y/n)? "
 }
 
 def menu():

@@ -164,6 +164,16 @@ class Controller(object):
 			print(self.views[0].errors(10))	
 
 	def player_pick_a_card(self, player):
+		if len(player.get_deck()) == 1:
+			# To force a player to call out last card
+			choice = input(self.views[0].prompts(23))
+			while any(( choice is None, not choice.strip())):
+				self.display_message(self.views[0].errors(11))
+				choice = input(self.views[0].prompts(23))
+			if choice == 'y':
+				player.set_last_card()
+			else:
+				return None
 		card = int(input(self.views[0].prompts(4)))
 		while  card < 0  or card >= len(player.get_deck()):
 			self.views[0].errors(1)

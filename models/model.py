@@ -147,7 +147,7 @@ class Model(object):
 		self.game_state[self.players[next_player]].player_state = PlayerState.PAUSED
 
 	def check_if_all_players_are_paused(self, player):
-		if len(self.players) == 2:
+		if any(( self.get_last_state == "SkipCardState", len(self.players) == 2 )):
 			all_set_played = True
 			for r_player in self.players:
 				if self.game_state[r_player].player_state == PlayerState.PAUSED:
