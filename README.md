@@ -2,6 +2,40 @@
 
 Moved [here](assets/doc/rules.md)
 
+
+Branches(Proposed/Tentative)
+----------------------------
+(a) **_Master_** will contain just the game logic(fully fleshed out and tested for 2-8 people). Preferably for the commandline
+
+(b) **_Commandline_** will (eventually) contain a fully functionally multiplayer commandline variant of Discard.
+
+(c) **_Web_** will (eventually) contain a Flask app to play the game in a browser
+
+(d) **_Kivy_** will (eventually) contain both the desktop application(GUI) and the android version. 
+
+
+Timeline
+--------
+
+- [ ] Finish testing all the game logic for the commandline(single screen) application
+- [ ] Refactor
+- [ ] Rewrite the controller into an API to enable transition into a multiplayer game
+- [ ] Finish the multiplayer commandline variant
+- [ ] Release as version 0.0.1 and merge into master
+- [ ] Finish Desktop version 
+- [ ] Release as version 0.0.5(alpha) 
+- [ ] Deploy mobile version as version 0.1 
+- [ ] Test to see if multiplayer works from desktop to mobile version
+- [ ] Finish Web version
+- [ ] Release as version 0.5(beta)
+- [ ] Tests to see if all plaforms can share database 
+- [ ] Release as version 1(full game)
+- [ ] Develop ability to play offline(mobile version) with friends
+- [ ] Release as version 1.1
+- [ ] Develop sophisticated AIs for computer
+- [ ] Release as version 2
+ 
+
 Copyright
 ---------
 

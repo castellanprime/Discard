@@ -14,7 +14,7 @@
     * [Punishments](#punishments) 
     * [Normal Cards](#normal-cards)
     * [Special Cards](#special-cards)
-        + [Rules](#rules)
+        + [Single-play Rules](#single-play)
         + [Combination Rules](#combination-rules)
 
 <!-- toc -->
@@ -84,17 +84,19 @@ No rules
 
 The characters in `''` are characters on the card faces. The rules are as below:
 
-#### Rules
+#### Single-play
 
-| Card | Action | Combinable | Stackable | Cards | Order |  
+This is for when you are playing the cards by themselves. 
+
+| Card | Action | Combinable | Stackable | Cards to combine with | Valid combinations |  
 | :---- | :------ | :----------: | :----: | :----: | :----: | 
 | `'1'`  | Pick one card | Yes | Yes | `'?'`, `'-'` | `['?', '1']`, `['-', '1']`
 | `'2'`  | Pick two cards | Yes | Yes | `'?'`, `'-'` | `['?', '2']`, `['-', '2']`
-| `'->'` | Skip the next player | Yes | No | `'?'`, `'-'` | `['?', '->']`, `['->', '?']`, `['->', '-']`, `['-', '->']` 
+| `'-> '` | Skip the next player | Yes | No | `'?'`, `'-'` | `['?', '->']`, `['->', '?']`, `['->', '-']`, `['-', '->']` 
 | `'?'` | Ask for any card | Yes | No | `'-'`, `'->'`, `'1'`, `'2'` | `['?', '->']`, `['->', '?']`, `['?', '1']`, `['?', '2']`, `['-','?']`, `['?','-']`
 | `'-'` | Drop a card | Yes | No | `'-'`, `'->'`, `'1'`, `'2'`, `'?'` | `['-', '-']`, `['-', '?']`, `['?', '-']`, `['-', '->']`, `['->','-']`, `['-','1']`, `['-','2']`
 
-'__Combinable__' means that the player can play this card with atmost one other card. 
+'__Combinable__' means that the player can play this card with at most one other card according to the [rules](#Combination-rules) 
 
 '__Stackable__' means that if the player plays this card, subsequent players in turn can play the same type of card according to the [rules](#general-rules), and avoid the penalties associated with that type of card. The player that cannot play that type of card pick the __sum total__ of the same type of that card already played.
 
@@ -102,12 +104,12 @@ The characters in `''` are characters on the card faces. The rules are as below:
 
 The order in `[]` is read from _left to right_, that is the first `''` is the card that is played _first_ and the second `''` is the card that is played _next_.
 
-| Cards | Action |
+| Cards(Order) | Action |
 | :---- | :----- |
 | `['?', '1']` | Everybody picks a card and you play again
 | `['?', '2']` | Everybody picks two cards and you play again
-| `['-', '1']` | Discard a card
-| `['-', '2']` | Discard two cards 
+| `['-', '1']` | Discard an extra card
+| `['-', '2']` | Discard two extra cards 
 | `['?', '->']`, `['->', '?']` | Skip everybody and play again
 | `['-', '?']`, `['?', '-']` | Remove a SpecialCard from the first player that has a Special Card.If there are no special cards, the player can discard one extra card.
 | `['-', '->']`, `['->', '-']` | Remove a SpecialCard from the next player in turn. If 	the player does not have a SpecialCard, the player can discard one extra card.

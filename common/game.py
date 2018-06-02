@@ -1,285 +1,229 @@
 """
-	This module contains the game logic
+	This module contains the game logic/rules
 	for Discard
 
 """
-from collections import nametuple
-from random import shuffle
-from cards import SpecialCard, NormalCard
-from enums import ShapeColour, CardColour, Shapes, GameState, PlayerState, CardType
-from player import Player
-
-"""
-	Rules:
-	'1' - 	Pick a card
-	'2' - 	Pick two cards
-	'?' - 	Ask for any Normal Card. If the player desires, the card can be
-			accompanied by these cards with their effects
-			-	'->': Skip everybody and play again
-			-	'1': Everybody picks one card and you play again
-			-	'2': Everybody picks two cards and you play again
-	'-'	-	Discard any Normal Cards you have with it. If the player desires, 
-			the card can be	accompanied by these cards with their effects
-			-	'1': The player discards one extra card.
-			- 	'2': The player discards two extra cards.
-			- 	'?': Remove a SpecialCard from the first player that has a Special Card.
-				If there are no	special cards, the player can discard one extra card.
-			-	'->': Remove a SpecialCard from the next player in turn. If the player
-				does not have a SpecialCard, the player can discard one extra card.
-
-	Algorithm:
-		- Check to see what type of card has been played.
-			- If the card is a NormalCard, check if the shape/colour matches the 
-			the card at the top of the deck
-			- If the card is a SpecialCard, check if the char/colour matches the 
-			the card at the top of the deck.
-		- If the card doesnt match, punish the player who has played that card with two cards
-		and then mark him/her as PlayerState.PLAYED
-		- If the card matches, 
-			- If the card is a Special Card, execute the actions:
-				- If the card is a '1' or a '2' or a '->', then execute the action only if
-				the player has not played either a '?' or '-'.
-				- If the card is a '?' or a '-', then ask if you want to stack another
-				Special Card and execute the action.   
-			- If the card is a normal Card, continue and go to the next player.
-
-	Playing the game should be as follows:
-
-	- Initialise players.
-	- Initialise game.
-	- Start Game with chosen current player
-		While no player has won:
-		- The current player looks at his/her cards and makes a decision
-			(player.checkCards())
-		- The current player then picks those cards and hands them over to the game.
-			(player.play())
-		- The game checks the cards according to the algorithm described earlier and then 
-			makes a decision. 
-
-"""
-
+import logging
+from common.cards import NormalCard, SpecialCard
+from common.playstates import BeginPlayState, PickCardsState, QuestionCardState, \
+		DropCardState, SkipCardState, QuestionCardandSkipState, NormalCardState, \
+		 PunishWrongMatchesState, BlockState, LastCardState
+from common.enums import PlayerState, SpecialCardName
 
 class DiscardGame(object):
 
-	game_deck = []
-	played_deck = []
-	game_state = {}
-	players = []
-
-	def __init__(self, players):
-		for player in players:
-			player.join(self)
-		self.players = players
-		for player in self.players:
-			self.game_state[player] = PlayerState.PAUSED
-		self.setupDecks()
-
-
-	def setupDecks(self):
-		self.colours = [ShapeColour.RED, ShapeColour.BLUE, ShapeColour.GREEN, ShapeColour.YELLOW]
-		self.shapes = [Shapes.CROSS, Shapes.SQUARE, Shapes.TRIANGLE, Shape.CIRCLE, Shape.CUP]
-		self.initDeck()
-		self.deal()
-
-	def initDeck(self):
-		normal_deck = self._initNormalCardDeck()
-		special_deck = [card for deck in self._initSpecialCardDeck() \
-						for card in deck]
-		self.game_deck.append(normal_deck)
-		self.game_deck.append(special_deck)
-		self.game_deck = [card for deck in self.game_deck for card in deck] 
-		shuffle(self.game_deck)
-
-	def deal(self):
-		num_of_players = len(self.players)
-		if num_of_players == 2:
-			num_cards_to_deal = 8
-		elif num_of_players == 3:
-			num_cards_to_deal = 6
-		else num_of_players >= 4:
-			num_cards_to_deal = 5
-		for card_index in range(0, num_cards_to_deal):
-			for player in players:
-				player.dealTo(self.game_deck.pop())
-		for index, card in enumerate(reversed(self.game_deck)):
-			if self._isCardANormalCard(card):
-				self.played_deck.append(self.pickACard(index))
-				break
-
-
-	# This sets who plays first
-	def setFirstPlay(self, firstPlay):
-		self._firstPlay_ = self.players[firstPlay]
-		self.setCurrentPlayer(self._firstPlay)
-
-	def getCurrentPlayer(self):
-		return self.current_player
-
-	def setCurrentPlayer(self, player):
-		self.current_player = player
-		self.game_state[self.current_player] = PlayerState.PLAYING
-
-	# This accepts a list
-	# Stackable means it needs to accept new cards
-	def setCardsLastPlayed(self, cards):
-		if isinstance(cards, list):
-			self.cards_played_last = cards
-		else:
-			raise TypeError("The argument provided is not a list")
-
-	def getNextTurn(self):
-		"""	Get the next person to play."""
-		index = self.players.index(self.current_player) + 1 % len(self.players)
-		while True:
-			next_player = self.players[index]
-			if self.game_state[next_player] == PlayerState.PAUSED:
-				return next_player
-			index = index + 1 % len(self.players) 
-
-	def pickACard(self, index=None):
-		if index==None:
-			return self.game_deck.pop()
-		return self.game_deck.pop(index)
-
-	def play(self):
-		"""
-			Decides based on the cards played what action to take
-			- 
-			- If a combo card, '?' and '->', set all the players state apart from
-			the current player to GameState.PLAYED and set the current player state 
-			to PlayerState.PAUSED.
-			- Otherwise set current player state to PlayerState.PLAYED. 
-
-			Separate the action from playing the game.
-		"""
-		while self.game_state[self.current_player] == PlayerState.PLAYING:
-			if len(self.cards_played_last) == 1:
-				# match the cards
-				if self._doesCardMatch(self.cards_played_last[0]):
-					# place the cards on the played deck
-					self.played_deck.append(self.cards_played_last[0])
-					# take action: ie look at the top of the played deck
-					if self._isCardANormalCard(self.played_deck[-1]):
-						del self.cards_played_last[0]
-						self.game_state[self.current_player] = PlayerState.PLAYED
-						self.setCurrentPlayer(self.getNextTurn)
-						break
-					elif self._isCardAPickOneCard(self.cards_played_last[-1]):
-							del self.cards_played_last[0]
-							player_to_punish = self.getNextTurn()
-							if not player.blocks():
-								player_to_punish.pickOne()
-							self.game_state[player_to_punish] = PlayerState.PLAYED
-							self.game_state[self.current_player] = PlayerState.PLAYED
-							self.setCurrentPlayer(self.getNextTurn)
-							break
-					elif 
-
-
-
-
-	
-	""" Private functions """
-
-	# Checks
-	def _isCardAPickOneCard(self, card):
-		if isinstance(card, SpecialCard):
-			return card.char == '1'
-
-	def _isCardAPickTwoCard(self, card):
-		if isinstance(card, SpecialCard):
-			return card.char == '2'
-
-	def _isCardAQuestionCard(self, card):
-		if isinstance(card, SpecialCard):
-			return card.char == '?'
-
-	def _isCardASkipCard(self, card):
-		if isinstance(card, SpecialCard):
-			return card.char == '->'	
+	def __init__(self, controller):
+		self._controller = controller
+		self._logger = logging.getLogger(__name__)
+		self.state, self.playing = None, None
+		self.played_cards = None
+		self.num_of_pick_cards = 0
+		self.num_of_cards_to_discard = 0
+		self.is_there_a_winner = False			# If there is a winner
 		
-	def _isCardADropCard(self, card):
-		if isinstance(card, SpecialCard):
-			return card.char == '-'	
-
-	def _isCardANormalCard(self, card):
+	""" Checks """
+	def is_card_a_normalcard(self, card):
 		return isinstance(card, NormalCard)
 
-	def _doesCardMatch(self, card):
-		if isinstance(card, NormalCard):
-			return any(card.shape == self.played_deck[-1].shape,
-						card.colour == self.played_deck[-1].colour)
-		elif isinstance(card, SpecialCard):
-			return any(card.char == self.played_deck[-1].char,
-						card.colour == self.played_deck[-1].colour)
+	def is_card_a_specialcard(self, card):
+		return isinstance(card, SpecialCard)
 
-	# Deck methods
-	def _initSpecialCardDeck(self):
-		special_card_deck = []
-		for colour in self.colours:
-			pick_one_card = SpecialCard(colour, CardColour.WHITE,'1', True, True)
-			special_card_deck.append(pick_one_card)
-			pick_two_card = SpecialCard(colour, CardColour.WHITE,'2', True, True)
-			special_card_deck.append(pick_two_card)
-			question_card = SpecialCard(colour, CardColour.WHITE, '?')
-			special_card_deck.append(question_card)
-			right_arrow_card = SpecialCard(colour, CardColour.WHITE, '->')
-			special_card_deck.append(right_arrow_card)
-			minus_card = SpecialCard(colour, CardColour.WHITE, '-')
-			special_card_deck.append(minus_card)
-		return special_card_deck
+	def is_card_a_pickone(self, card):
+		if self.is_card_a_specialcard(card):
+			return card.char == SpecialCardName['PICKONE'].value
 
-	def _initNormalCardDeck(self):
-		return [[NormalCard(CardColour.BLACK, colour, shape) for colour in \
-					self.colours for shape in self.shapes] for i in range(0, 5)]
+	def is_card_a_picktwo(self, card):
+		if self.is_card_a_specialcard(card):
+			return card.char == SpecialCardName['PICKTWO'].value
 
-	def _shuffleGameDeck(self):
-		if len(self.game_deck) == 1:
-			end = len(self.played_deck) - 1
-			temp_list = [self.played_deck.pop(index) for index in range(0, end)]
-			shuffle(temp_list)
-			self.game_deck.extend(temp_list) 
+	def is_card_a_question(self, card):
+		if self.is_card_a_specialcard(card):
+			return card.char == SpecialCardName['QUESTION'].value
 
-def main():
-	"""
-	Initialise players and game
-
-	:returns: A new game object and the first person to play
-	"""
-	players = []
-	prompt()
-	num_of_players = int(input("Enter the number of players playing the game: "))
-	while(num_of_players < 2 or num_of_players > 8):
-		print("You must have between 2 - 8 players(inclusive) playing this game ")
-		num_of_players = int(input("Enter the number of players playing the game: "))
-	for num in num_of_players:
-		player_name=input("Enter your player name: ")
-		players.append(Player(player_name))
-	new_game = DiscardGame(players)
-	person_to_play = input("Which player plays first? ")
-	for player in players:
-		if player.getNickname() == person_to_play:
-			new_game.setFirstPlay(player)
-			break
-	return new_game, person_to_play
-
-			
-
-
-
-
-
-
-
+	def is_card_a_skip(self, card):
+		if self.is_card_a_specialcard(card):
+			return card.char == SpecialCardName['SKIP'].value	
 		
+	def is_card_a_drop(self, card):
+		if self.is_card_a_specialcard(card):
+			return card.char == SpecialCardName['DROP'].value	
 
+	def has_picked_cards(self):
+		return self.num_of_pick_cards == 0
 
+	def add_to_pick_cards(self):
+		if self.num_of_pick_cards < 0:
+			self.num_of_pick_cards = 0
+		self.num_of_pick_cards = self.num_of_pick_cards + 1
+		self._logger.info("Added a pick card")
 
+	def add_to_discard_cards(self):
+		self.num_of_cards_to_discard = self.num_of_cards_to_discard + 1
+		self._logger.info("Added a discard card")	
 
+	def has_someone_won(self):
+		return self.is_there_a_winner == True
 
+	def do_cards_match(self, card_one, card_two):
+		self._logger.info("Do cards match")
+		""" Checks if the card matches either
+		(a)	Shape or Colour in the case of a normal card
+		(b) Char or colour in the case of a special card
+		"""
+		sstr = "Card_one: " + str(card_one) +  "\nCard_two: " + str(card_two) 
+		self._logger.debug(sstr)
+		if self.is_card_a_normalcard(card_one) and self.is_card_a_normalcard(card_two):
+			return any((card_one.get_shape() == card_two.get_shape(),
+						card_one.get_shape_colour() == card_two.get_shape_colour()))
+		elif self.is_card_a_specialcard(card_one) and self.is_card_a_normalcard(card_two):
+			return card_one.get_char_colour() == card_two.get_shape_colour()
+		elif self.is_card_a_normalcard(card_one) and self.is_card_a_specialcard(card_two):
+			return card_one.get_shape_colour() == card_two.get_char_colour()
+		elif self.is_card_a_specialcard(card_one) and self.is_card_a_specialcard(card_two):
+			return any((card_one.get_char() == card_two.get_char(),
+						card_one.get_char_colour() == card_two.get_char_colour()))
 
-				
+	def normal_play(self):
+		# Normal play
+		self._controller.display_cards(self._controller.current_player)				
+		pick_choice = self._controller.ask_to_pick(True)
 
+		if pick_choice.lower() == "pick":
+			self.evaluate_pick_card_choice()
+		elif pick_choice.lower() == "lastcard":
+			can_play_last_card = self._controller.check_if_last_card()
+			if can_play_last_card:
+				self._controller.display_last_card_rules()
+				self.state = LastCardState()
+				st = "State to Consider = " + str(self.state)
+				self._logger.debug(st)
+				self.evaluate_pick_card_choice()
+			else:
+				pick_choice = self._controller.ask_to_pick()
+				if pick_choice.lower() == "pick":
+					self.state = BeginPlayState()
+					st = "State to Consider = " + str(self.state)
+					self._logger.debug(st)
+					self.evaluate_pick_card_choice()
+				else:
+					self.evaluate_skip_card_choice()
+		else:
+			# If the player wants to skip his/her turn
+			self.evaluate_skip_card_choice()
 
+	def end_played_pick_card(self):
+		# For current player that has not played a pick one or pick two card
+		self._controller.display_cards(self._controller.current_player)
+		choice = input(self._controller.views[0].prompts(6))	# Do he/she want to block
+		if choice == 'n':
+			self.state = PickCardsState()
+			st = "State to Consider = " + str(self.state)
+			self._logger.debug(st)
+			self.state = self.state.evaluate(self, None)
+			self._logger.debug(str(self.state))
+		else:
+			#self._controller.display_cards(self._controller.current_player)
+			self.played_cards = self._controller.player_pick_a_card(self._controller.current_player)[0]	# Pick the blocking card
+			self.state = BlockState()
+			st = "State to Consider = " + str(self.state)
+			self._logger.debug(st)
+			self.state = self.state.evaluate(self, self.played_cards)
 
-		
+	def start_played_pick_card(self):
+		# For current player that has just played a pick one or pick two card
+		choice = input(self._controller.views[0].prompts(7))	# begin combo
+		self.update(self.played_cards)
+		if choice == 'y':
+			self._logger.debug("Adding more pick cards")
+			self.add_to_pick_cards()
+			self.update_state(self.state)
+			self._controller.display_cards(self._controller.current_player)
+			self.played_cards = self._controller.player_pick_a_card(self._controller.current_player)[0]  # Allows you to pick another card
+			self.state = self.state.evaluate(self, self.played_cards)
+		elif choice == 'n':
+			# if player only has one pick card
+			self._logger.debug("Only one pick card!!")
+			self.state = self.state.evaluate(self, None)
+			self.add_to_pick_cards()
+
+	def start_special_states(self):
+		choice = input(self._controller.views[0].prompts(7))
+		self.update(self.played_cards)    # This drops the @drop_card on the pile
+		if (isinstance(self.state, DropCardState)):
+			self.add_to_discard_cards()
+		if choice == 'y':
+			self._logger.debug("Combining cards")
+			self._controller.display_cards(self._controller.current_player)
+			self.played_cards = self._controller.player_pick_a_card(self._controller.current_player)[0] # Allows you to pick another card
+			self.state = self.state.evaluate(self, self.played_cards)
+		elif choice == 'n':
+			self._logger.debug("Solitary cards")
+			self.state = self.state.evaluate(self, None)
+
+	def evaluate_pick_card_choice(self):
+		self.played_cards = self._controller.player_pick_a_card(self._controller.current_player)[0]
+		sstr = "You picked: " + str(self.played_cards)
+		self._controller.display_message(sstr)
+		self._logger.debug(sstr)
+		if (self.state is None):
+			self.state = BeginPlayState()
+		st = "Starting the round: " + self.state.__class__.__name__
+		self._logger.info(st)
+		self.state = self.state.evaluate(self, self.played_cards)
+
+	def evaluate_skip_card_choice(self):
+		self._logger.info("Skipping turn")
+		self.pick_one()
+		self.update_state('PlayerSkip')				
+		self.playing.player_state = PlayerState.PLAYED
+		self._controller.set_current_player()
+
+	def play1Round(self):
+		self.state = BeginPlayState()
+		self.playing = self._controller.get_player_state(self._controller.current_player)
+		while self.playing.player_state == PlayerState.PLAYING:
+			self._controller.display_top_card()
+			if ((self.is_card_a_pickone(self._controller.get_top_card()) or 
+				self.is_card_a_picktwo(self._controller.get_top_card())) and 
+				self._controller.get_last_playing_state() == "PickCardsState" and
+				(self.has_picked_cards() is False)):
+				self.end_played_pick_card()
+			elif (isinstance(self.state, PickCardsState) and (self.is_card_a_pickone(self.played_cards) or
+				self.is_card_a_picktwo(self.played_cards))):
+				self.start_played_pick_card()
+			elif any((isinstance(self.state, QuestionCardState),
+					isinstance(self.state, DropCardState), 
+					isinstance(self.state, SkipCardState))):
+				self.start_special_states()
+			elif isinstance(self.state, QuestionCardandSkipState):
+				return			# allows the player to play again
+			elif any((isinstance(self.state, NormalCardState), 
+				isinstance(self.state, PunishWrongMatchesState))):
+					self.state = self.state.evaluate(self, self.played_cards)
+			else: 
+				self.normal_play()
+
+			st = "Next/End State = " + str(self.state)
+			self._logger.debug(st)
+
+			# Determine who won and end game
+			if self._controller.get_last_player().has_played_last_card():
+				self._controller.set_win_status(self._controller.get_last_player())
+				self.is_there_a_winner = True
+				return
+
+	def update(self, playedCards):
+		self._controller.play_card(playedCards)
+
+	def update_state(self, state):
+		self._controller.update_state(state)
+	
+	def pick_one(self):
+		self._controller.display_message("Dealing a card to current player")
+		self._logger.info("Dealing a card to current player")
+		self.num_of_pick_cards = self.num_of_pick_cards - 1
+		self._controller.deal_to_player(self._controller.current_player)
+
+	def pick_two(self):
+		self.pick_one()
+		self.pick_one()

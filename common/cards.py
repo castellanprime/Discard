@@ -1,3 +1,5 @@
+from .enums import SpecialCardName
+
 class Card:
 
 	def __init__(self, card_colour, other_colour):
@@ -10,20 +12,41 @@ class Card:
 class NormalCard(Card):
 
 	def __init__(self, card_colour, shape_colour, shape):
-		super().__init__(self, card_colour, shape_colour)
+		super().__init__(card_colour, shape_colour)
 		self.shape = shape
 
+	def get_shape(self):
+		return self.shape
+
+	def get_card_colour(self):
+		return self.card_colour
+
+	def get_shape_colour(self):
+		return self.other_colour
+
+	def get_name(self):
+		return 'Shape'
+
 	def __repr__(self):
-		return "[{0} {1}]".format(self.shape, super().__repr__())
+		return "(Shape:{0} Colours:{1})".format(self.shape, super().__repr__())
 
 class SpecialCard(Card):
 
-	def __init__(self, card_colour, char_colour, char, 
-				is_blockable=False, is_stackable=False):
-		super().__init__(self, card_colour, char_colour)
+	def __init__(self, card_colour, char_colour, char):
+		super().__init__(card_colour, char_colour)
 		self.char = char
-		self.is_blockable = is_blockable
-		self.is_stackable = is_stackable
+
+	def get_char(self):
+		return self.char
+
+	def get_card_colour(self):
+		return self.card_colour
+
+	def get_char_colour(self):
+		return self.other_colour
+
+	def get_name(self):
+		return SpecialCardName(self.char).name
 
 	def __repr__(self):
-		return "[{0} {1}]".format(self.shape, super().__repr__())
+		return "(Char:{0} Colours:{1})".format(self.char, super().__repr__())

@@ -83,7 +83,7 @@
 <li>
 <a href="#special-cards">Special Cards</a>
 <ul>
-<li><a href="#rules">Rules</a></li>
+<li><a href="#single-play">Single-play Rules</a></li>
 <li><a href="#combination-rules">Combination Rules</a></li>
 </ul>
 </li>
@@ -160,23 +160,23 @@
 <tbody>
 <tr>
 <td>Cross</td>
-<td><a href="assets/images/cross.png" target="_blank"><img src="assets/images/cross.png" alt="cross" style="max-width:100%;"></a></td>
+<td><a href="../images/cross.png" target="_blank"><img src="../images/cross.png" alt="cross" style="max-width:100%;"></a></td>
 </tr>
 <tr>
 <td>Square</td>
-<td><a href="assets/images/square.png" target="_blank"><img src="assets/images/square.png" alt="square" style="max-width:100%;"></a></td>
+<td><a href="../images/square.png" target="_blank"><img src="../images/square.png" alt="square" style="max-width:100%;"></a></td>
 </tr>
 <tr>
 <td>Triangle</td>
-<td><a href="assets/images/triangle.png" target="_blank"><img src="assets/images/triangle.png" alt="triangle" style="max-width:100%;"></a></td>
+<td><a href="../images/triangle.png" target="_blank"><img src="../images/triangle.png" alt="triangle" style="max-width:100%;"></a></td>
 </tr>
 <tr>
 <td>Circle</td>
-<td><a href="assets/images/circle.png" target="_blank"><img src="assets/images/circle.png" alt="circle" style="max-width:100%;"></a></td>
+<td><a href="../images/circle.png" target="_blank"><img src="../images/circle.png" alt="circle" style="max-width:100%;"></a></td>
 </tr>
 <tr>
 <td>Cup</td>
-<td><a href="assets/images/cup.png" target="_blank"><img src="assets/images/cup.png" alt="cup" style="max-width:100%;"></a></td>
+<td><a href="../images/cup.png" target="_blank"><img src="../images/cup.png" alt="cup" style="max-width:100%;"></a></td>
 </tr>
 </tbody>
 </table>
@@ -202,7 +202,8 @@
 <a id="user-content-special-cards" class="anchor" href="#special-cards" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Special-cards</h3>
 <p>The characters in <code>''</code> are characters on the card faces. The rules are as below:</p>
 <h4>
-<a id="user-content-rules-1" class="anchor" href="#rules-1" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Rules</h4>
+<a id="user-content-single-play" class="anchor" href="#single-play" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Single-play</h4>
+<p>This is for when you are playing the cards by themselves.</p>
 <table>
 <thead>
 <tr>
@@ -210,8 +211,8 @@
 <th align="left">Action</th>
 <th align="center">Combinable</th>
 <th align="center">Stackable</th>
-<th align="center">Cards</th>
-<th align="center">Order</th>
+<th align="center">Cards to combine with</th>
+<th align="center">Valid combinations</th>
 </tr>
 </thead>
 <tbody>
@@ -240,7 +241,7 @@
 </td>
 </tr>
 <tr>
-<td align="left"><code>'-&gt;'</code></td>
+<td align="left"><code>'-&gt; '</code></td>
 <td align="left">Skip the next player</td>
 <td align="center">Yes</td>
 <td align="center">No</td>
@@ -277,7 +278,7 @@
 </tr>
 </tbody>
 </table>
-<p>'<strong>Combinable</strong>' means that the player can play this card with atmost one other card.</p>
+<p>'<strong>Combinable</strong>' means that the player can play this card with at most one other card according to the <a href="#Combination-rules">rules</a></p>
 <p>'<strong>Stackable</strong>' means that if the player plays this card, subsequent players in turn can play the same type of card according to the <a href="#general-rules">rules</a>, and avoid the penalties associated with that type of card. The player that cannot play that type of card pick the <strong>sum total</strong> of the same type of that card already played.</p>
 <h4>
 <a id="user-content-combination-rules" class="anchor" href="#combination-rules" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Combination-rules</h4>
@@ -285,7 +286,7 @@
 <table>
 <thead>
 <tr>
-<th align="left">Cards</th>
+<th align="left">Cards(Order)</th>
 <th align="left">Action</th>
 </tr>
 </thead>
@@ -300,11 +301,11 @@
 </tr>
 <tr>
 <td align="left"><code>['-', '1']</code></td>
-<td align="left">Discard a card</td>
+<td align="left">Discard an extra card</td>
 </tr>
 <tr>
 <td align="left"><code>['-', '2']</code></td>
-<td align="left">Discard two cards</td>
+<td align="left">Discard two extra cards</td>
 </tr>
 <tr>
 <td align="left">

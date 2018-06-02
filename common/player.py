@@ -1,44 +1,65 @@
+import logging
+
 class Player(object):
 	
 	def __init__(self, nick):
+		self._logger = logging.getLogger(__name__)
 		self.nick= nick
 		self.deck = []
 		self.last_played = []
+		self.game = None
+		self.last_card = False
 
 	# This allows the player to join a game
 	def join(self, game):
 		self.game = game 
+		sstrs = "Joined game - " + self.nick
+		self._logger.info(sstrs)
 
-	def getNickname(self):
+	def get_nick_name(self):
 		return self.nick
 
-	# This is the card numbers to remove
-	# Refactor to allow for the players to retract their card/mistakes
-	# This ability should be the given to the game
-	def selectCards(self, card_numbers):
+	def get_deck(self):
+		return self.deck
+
+	def get_last_played(self):
+		return self.last_played
+
+	def select_cards(self, card_numbers):
 		self.last_played = [self.deck.pop(card_number) for card_number in card_numbers]
-	
-	def play(self):
-		self.game.setCardsLastPlayed(self.last_played)
-		self.game.play()
+		sstr = "The length of the deck: " + str(len(self.deck))
+		self._logger.info(sstr)
+		"""
+		if len(self.deck) == 1:
+			self.last_card = True
+		elif len(self.deck) == 0:
+			self.has_played_last_card = True
+		"""
 
-	def checkCards(self):
-		return ','.join([str(self.deck.index(card)) \
-				+ ":" + repr(card)) for card in self.deck])
+	def set_last_card(self):
+		if self.last_card == False:
+			self.last_card = True
 
-	def pickOne(self):
-		self.deck.append(self.game.pickACard())
+	def has_played_last_card(self):
+		return self.last_card
 
-	def pickTwo(self):
-		self.pickOne()
-		self.pickOne()
+	def add_a_card(self, card):
+		self.deck.append(card)
 
-	def blocks(self):
-		if self.game.played_deck[0] in self.deck:
+	def pick_one(self, card):
+		self._logger.info(str(card))
+		self.deck.insert(0, card)
 
-	def giveUpTurn(self):
-		self.pickOne()
-		self.game.setCurrentPlayer(self.game.getNextTurn())
+	def __eq__(self, other):
+		if isinstance(other, self.__class__):
+			return self.deck == other.deck and self.nick == other.nick and self.last_played == other.last_played
+		return False
 
+	def __ne__(self, other):
+		return self.deck != other.deck or self.nick != other.nick or self.last_played != other.last_played
 
-	
+	def __hash__(self):
+		return hash(self.nick)
+
+	def __str__(self):
+		return "Player: {}".format(self.nick)
